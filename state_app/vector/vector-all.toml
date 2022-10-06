@@ -1,0 +1,61 @@
+
+[api]
+enabled = true
+
+[sources.in]
+type = "stdin"
+
+[transforms.parse]
+inputs = ["in"]
+type = "remap"
+source = '''
+  . = parse_json!(.message)
+'''
+
+[transforms.block]
+type = "filter"
+inputs = ["parse"]
+condition = ".Block != null"
+
+[transforms.trace]
+type = "filter"
+inputs = ["parse"]
+condition = ".SubCallOf != null"
+
+[transforms.message]
+type = "filter"
+inputs = ["parse"]
+condition = ".SubCallOf == null && .Message != null"
+
+[transforms.contract]
+type = "filter"
+inputs = ["parse"]
+condition = '''.Message.From == "t01" || .Message.To == "t01" || starts_with(to_string(.Message.From) ?? "", "t3")'''
+
+[sinks.file_block]
+type = "file"
+inputs = [ "block" ]
+compression = "none"
+path = '''./data/block/{{ Block.Height }}.{{ Cid }}.json'''
+encoding.codec = "json"
+
+[sinks.file_contract]
+type = "file"
+inputs = [ "contract" ]
+compression = "none"
+path = "./data/contract/contracts.json"
+encoding.codec = "json"
+
+[sinks.file_trace]
+type = "file"
+inputs = [ "trace" ]
+compression = "none"
+path = "./data/trace/{{ Height }}.{{ BlockCid }}.{{ SubCallOf }}.json"
+encoding.codec = "json"
+
+[sinks.file_message]
+type = "file"
+inputs = [ "message" ]
+compression = "none"
+path = "./data/messages/{{ Height }}.{{ BlockCid }}.{{ Cid }}.json"
+encoding.codec = "json"

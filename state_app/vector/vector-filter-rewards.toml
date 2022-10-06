@@ -1,0 +1,21 @@
+[sources.in]
+type = "stdin"
+
+[transforms.parse]
+inputs = ["in"]
+type = "remap"
+source = '''
+  . = parse_json!(.message)
+'''
+
+[transforms.rewards]
+type = "filter"
+inputs = ["parse"]
+condition = '''.Message.From == "t02"'''
+
+[sinks.file_rewards]
+type = "file"
+inputs = [ "rewards" ]
+compression = "none"
+path = "./data/rewards/{{ Height }}.rewards.json"
+encoding.codec = "json"
