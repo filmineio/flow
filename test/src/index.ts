@@ -109,7 +109,7 @@ const sync = (inJson: string): FMap => {
           hashValue: message.DecodedParams
             ? (message.DecodedParams as any)?.CodeCID["/"]
             : "",
-          id: message.Message.To,
+          id: sub_call.Message.To,
           isVerified: true,
           network: "devnet",
           numberOfTransactions: 0,
