@@ -112,7 +112,7 @@ const sync = (inJson: string): FMap => {
           id: sub_call.Message.To,
           isVerified: true,
           network: "devnet",
-          numberOfTransactions: 0,
+          numberOfTransactions: 1,
           project: {
             id: "#demo",
             name: "Demo Project",
@@ -137,6 +137,7 @@ const sync = (inJson: string): FMap => {
             ...data.filter((m) => m.SubCallOf === message.Cid)
           )
         );
+        map[message.Message.To].numberOfTransactions += 1;
       }
     }
   });
