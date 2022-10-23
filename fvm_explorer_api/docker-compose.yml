@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_PASSWORD: "dbpass"
+      POSTGRES_USER: "dbuser"
+      POSTGRES_DB: "fvm_explorer"
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.data/pg:/var/lib/postgresql/data
