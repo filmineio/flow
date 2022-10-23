@@ -15,7 +15,7 @@ source = '''
 [transforms.block]
 type = "filter"
 inputs = ["parse"]
-condition = ".Block != null"
+condition = ".Block != null && .ActorId == null"
 
 [transforms.trace]
 type = "filter"
@@ -27,35 +27,52 @@ type = "filter"
 inputs = ["parse"]
 condition = ".SubCallOf == null && .Message != null"
 
-[transforms.contract]
+
+[transforms.bls]
 type = "filter"
 inputs = ["parse"]
-condition = '''.Message.From == "t01" || .Message.To == "t01" || starts_with(to_string(.Message.From) ?? "", "t3")'''
+condition = ".ActorId != null"
+
+[transforms.dedupe_bls]
+type = "dedupe"
+inputs = [ "bls" ]
+cache.num_events=100000
+fields.match=["ActorId", "Balance"]
+
+[transforms.bench]
+type = "filter"
+inputs = ["parse"]
+condition = '''.target_height != null'''
 
 [sinks.file_block]
 type = "file"
 inputs = [ "block" ]
 compression = "none"
-path = '''./data/block/{{ Block.Height }}.{{ Cid }}.json'''
+path = '''/Volumes/flowdata/block/{{ Block.Height }}.{{ Cid }}.json'''
 encoding.codec = "json"
 
-[sinks.file_contract]
-type = "file"
-inputs = [ "contract" ]
-compression = "none"
-path = "./data/contract/contracts.json"
-encoding.codec = "json"
+#[sinks.file_trace]
+#type = "file"
+#inputs = [ "trace" ]
+#compression = "none"
+#path = "/Volumes/flowdata/trace/{{ Height }}.{{ BlockCid }}.{{ SubCallOf }}.json"
+#encoding.codec = "json"
 
-[sinks.file_trace]
-type = "file"
-inputs = [ "trace" ]
-compression = "none"
-path = "./data/trace/{{ Height }}.{{ BlockCid }}.{{ SubCallOf }}.json"
+[sinks.out]
+inputs = ["bench"]
+type = "console"
 encoding.codec = "json"
 
 [sinks.file_message]
 type = "file"
-inputs = [ "message" ]
+inputs = [ "message", "trace" ]
 compression = "none"
-path = "./data/messages/{{ Height }}.{{ BlockCid }}.{{ Cid }}.json"
+path = "/Volumes/flowdata/messages/all.json"
+encoding.codec = "json"
+
+[sinks.file_bls]
+type = "file"
+inputs = [ "dedupe_bls" ]
+compression = "none"
+path = "/Volumes/flowdata/bls/all.json"
 encoding.codec = "json"

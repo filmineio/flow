@@ -33,7 +33,7 @@ type TOutput = {
 type Contract = {
   id: string;
   network: string;
-  isVerified: true;
+  isVerified: boolean;
   numberOfTransactions: number;
   totalValueLocked: number;
   hashValue: string;
@@ -110,8 +110,8 @@ const sync = (inJson: string): FMap => {
             ? (message.DecodedParams as any)?.CodeCID["/"]
             : "",
           id: sub_call.Message.To,
-          isVerified: true,
-          network: "devnet",
+          isVerified: false,
+          network: "wallaby_testnet",
           numberOfTransactions: 1,
           project: {
             id: "#demo",

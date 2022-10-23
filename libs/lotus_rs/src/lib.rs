@@ -5,12 +5,13 @@ pub mod types;
 use crate::client::LotusClient;
 
 use crate::types::api::{RPCRequest, Rs};
+use crate::types::chain::actor_state::ActorState;
 use crate::types::chain::block_messages::BlockMessages;
 use crate::types::chain::chain_head::ChainHead;
 use crate::types::chain::cid::CID;
 use crate::types::chain::message::Message;
 use crate::types::state::state::State;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde_json::Value::Null;
 use serde_json::{json, Value};
 
@@ -56,9 +57,12 @@ impl LotusClient {
         Ok(res.result)
     }
 
-    pub async fn get_block_messages(&self, block_cid: CID) -> Result<BlockMessages> {
-        let res: Rs<BlockMessages> = self
-            .send::<Rs<BlockMessages>>("ChainGetBlockMessages".to_string(), vec![json!(block_cid)])
+    pub async fn chain_get_messages_in_tipset(&self, block_cid: CID) -> Result<Vec<Message>> {
+        let res: Rs<Vec<Message>> = self
+            .send::<Rs<Vec<Message>>>(
+                "ChainGetMessagesInTipset".to_string(),
+                vec![json!(vec![block_cid])],
+            )
             .await?
             .json()
             .await?;
@@ -69,13 +73,56 @@ impl LotusClient {
     pub async fn state_decode_params(
         &self,
         to: String,
-        method: i8,
+        method: i64,
         params: String,
     ) -> Result<Value> {
         let res: Rs<Value> = self
             .send::<Rs<Value>>(
                 "StateDecodeParams".to_string(),
                 vec![json!(to), json!(method), json!(params), Null],
+            )
+            .await?
+            .json()
+            .await?;
+
+        Ok(res.result)
+    }
+
+    pub async fn state_lookup_robust_address(
+        &self,
+        address: String,
+        ts: Option<CID>,
+    ) -> Result<String> {
+        let res: Rs<String> = self
+            .send::<Rs<String>>(
+                "StateLookupRobustAddress".to_string(),
+                vec![json!(address), json!(vec![ts])],
+            )
+            .await?
+            .json()
+            .await?;
+
+        Ok(res.result)
+    }
+
+    pub async fn state_lookup_id(&self, address: String, ts: Option<CID>) -> Result<String> {
+        let res: Rs<String> = self
+            .send::<Rs<String>>(
+                "StateLookupID".to_string(),
+                vec![json!(address), json!(vec![ts])],
+            )
+            .await?
+            .json()
+            .await?;
+
+        Ok(res.result)
+    }
+
+    pub async fn state_get_actor(&self, address: String, ts: Option<CID>) -> Result<ActorState> {
+        let res: Rs<ActorState> = self
+            .send::<Rs<ActorState>>(
+                "StateGetActor".to_string(),
+                vec![json!(address), json!(vec![ts])],
             )
             .await?
             .json()

@@ -1,3 +1,4 @@
+use lotus_rs::client::LotusClient;
 use lotus_rs::types::chain::block::Block;
 use lotus_rs::types::chain::cid::CID;
 use lotus_rs::types::chain::message::Message;
@@ -5,7 +6,9 @@ use lotus_rs::types::state::execution_trace::ExecutionTrace;
 use lotus_rs::types::state::gas_charge::GasCharge;
 use lotus_rs::types::state::message_rct::MessageRct;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::time::Duration;
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -13,7 +16,6 @@ pub struct FlowMessageRct {
     pub ExitCode: Option<i8>,
     pub Return: Option<String>,
     pub GasUsed: Option<i64>,
-    pub DecodedReturn: Option<Value>,
 }
 
 impl From<MessageRct> for FlowMessageRct {
@@ -22,7 +24,6 @@ impl From<MessageRct> for FlowMessageRct {
             Return: m.Return,
             ExitCode: m.ExitCode,
             GasUsed: m.GasUsed,
-            DecodedReturn: None,
         }
     }
 }
@@ -51,28 +52,111 @@ impl From<Block> for FlowBlock {
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Addresses {
+    pub RobustFrom: Option<String>,
+    pub RobustTo: Option<String>,
+    pub From: Option<String>,
+    pub To: Option<String>,
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FlowMessage {
     pub Cid: String,
     pub Message: Message,
     pub Height: Option<i64>,
     pub BlockCid: Option<String>,
     pub MessageRct: Option<FlowMessageRct>,
-    pub DecodedParams: Option<Value>,
     pub GasCharges: Option<Vec<GasCharge>>,
     pub SubCallOf: Option<String>,
+    pub Addresses: Addresses,
+    pub Value: Option<i64>,
+}
+
+impl From<Message> for Addresses {
+    fn from(value: Message) -> Self {
+        let mut addr: Addresses = Addresses {
+            From: None,
+            RobustFrom: None,
+            To: None,
+            RobustTo: None,
+        };
+
+        if Addresses::is_robust(&value.From) {
+            addr.RobustFrom = Some(value.From);
+            addr.From = None;
+        } else {
+            addr.From = Some(value.From);
+            addr.RobustFrom = None;
+        }
+
+        if Addresses::is_robust(&value.To) {
+            addr.RobustTo = Some(value.To);
+            addr.To = None;
+        } else {
+            addr.To = Some(value.To);
+            addr.RobustTo = None;
+        }
+
+        addr
+    }
+}
+
+impl Addresses {
+    fn is_robust(addr: &str) -> bool {
+        addr.len() > 10
+    }
+
+    async fn get_from_rpc(client: &LotusClient, address: &str) -> Option<String> {
+        if Addresses::is_robust(address) {
+            match client.state_lookup_id(address.to_string(), None).await {
+                Ok(addr) => Some(addr),
+                Err(_e) => None,
+            }
+        } else {
+            match client
+                .state_lookup_robust_address(address.to_string(), None)
+                .await
+            {
+                Ok(addr) => Some(addr),
+                Err(_e) => None,
+            }
+        }
+    }
+
+    async fn resolve_addr(
+        client: &LotusClient,
+        address: &str,
+        map: &mut HashMap<String, Option<String>>,
+    ) -> Option<String> {
+        if let Some(add) = map.get(address) {
+            return add.clone();
+        }
+
+        let addr = Addresses::get_from_rpc(client, address).await;
+        map.insert(address.to_string(), addr.clone());
+
+        addr
+    }
 }
 
 impl From<ExecutionTrace> for FlowMessage {
     fn from(exec_trace: ExecutionTrace) -> Self {
+        let mut val: i64 = 0;
+        if let Some(v) = &exec_trace.Msg.Value {
+            val = i64::from_str(v).unwrap_or(0)
+        }
+
         Self {
             Cid: exec_trace.Msg.CID["/"].clone(),
-            Message: exec_trace.Msg,
+            Message: exec_trace.Msg.clone(),
             Height: None,
             BlockCid: None,
             MessageRct: Some(FlowMessageRct::from(exec_trace.MsgRct)),
-            DecodedParams: None,
             GasCharges: None, // ToDo if needed exec_trace.GasCharges,
             SubCallOf: None,
+            Addresses: Addresses::from(exec_trace.Msg),
+            Value: Some(val),
         }
     }
 }
@@ -83,12 +167,48 @@ impl FlowMessage {
         self.Height = Some(height);
     }
 
-    pub fn set_decoded_params(&mut self, params: Value) {
-        self.DecodedParams = Some(params);
-        self.Message.Params = None;
-    }
-
     pub fn set_sub_calls_of(&mut self, msg_cid: CID) {
         self.SubCallOf = Some(msg_cid["/"].clone())
     }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Bench {
+    pub elapsed: Duration,
+    pub height: i64,
+    pub target_height: i64,
+}
+
+impl FlowMessage {
+    pub async fn resolve_addresses(
+        &mut self,
+        client: &LotusClient,
+        map: &mut HashMap<String, Option<String>>,
+    ) {
+        if let Some(address) = &self.Addresses.From {
+            self.Addresses.RobustFrom = Addresses::resolve_addr(client, address, map).await;
+        }
+
+        if let Some(address) = &self.Addresses.RobustFrom {
+            self.Addresses.From = Addresses::resolve_addr(client, address, map).await;
+        }
+
+        if let Some(address) = &self.Addresses.To {
+            self.Addresses.RobustTo = Addresses::resolve_addr(client, address, map).await;
+        }
+
+        if let Some(address) = &self.Addresses.RobustTo {
+            self.Addresses.To = Addresses::resolve_addr(client, address, map).await;
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ActorBls {
+    pub Height: i64,
+    pub Block: Option<String>,
+    pub ActorId: String,
+    pub Balance: i64,
+    pub Processed: String,
 }

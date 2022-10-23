@@ -1,26 +1,43 @@
-version: '3'
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+version: "3"
 
-  broker:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: broker
-    ports:
-    # To learn about configuring Kafka for access across networks see
-    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+services:
+    server:
+     image: yandex/clickhouse-server:latest
+     ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9009:9009"
+     environment:
+       - CLICKHOUSE_DB=flow
+       - CLICKHOUSE_USER=flow_u
+       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+       - CLICKHOUSE_PASSWORD=flow_p
+       - allow_experimental_object_type=1
+       - output_format_json_named_tuples_as_objects=1
+     ulimits:
+      nproc: 65535
+      nofile:
+       soft: 262144
+       hard: 262144
+    client:
+      image: yandex/clickhouse-client
+      command: ['--host', 'server']
+    zookeeper:
+      image: 'bitnami/zookeeper:latest'
+      ports:
+        - '2181:2181'
+      environment:
+        - ALLOW_ANONYMOUS_LOGIN=yes
+    kafka:
+      image: 'bitnami/kafka:latest'
+      ports:
+        - '9092:9092'
+      environment:
+        - KAFKA_BROKER_ID=1
+        - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+        - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+        - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+        - ALLOW_PLAINTEXT_LISTENER=yes
+      depends_on:
+        - zookeeper

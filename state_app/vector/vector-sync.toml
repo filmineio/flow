@@ -5,8 +5,22 @@ data_dir="/Volumes/flowdata/messages"
 read_from = "beginning"
 max_line_bytes=99999999
 
+[sources.bls]
+type = "file"
+include = [ "/Volumes/flowdata/bls/all.json" ]
+data_dir="/Volumes/flowdata/bls"
+read_from = "beginning"
+max_line_bytes=99999999
+
 [transforms.parse]
 inputs = ["messages_all"]
+type = "remap"
+source = '''
+  . = parse_json!(.message)
+'''
+
+[transforms.parse_bls]
+inputs = ["bls"]
 type = "remap"
 source = '''
   . = parse_json!(.message)
@@ -23,34 +37,36 @@ source = '''
   d.MessageRctExitCode = .MessageRct.ExitCode
   d.MessageRctReturn = .MessageRct.Return
   d.MessageRctGasUsed = .MessageRct.GasUsed
-
-  if (.DecodedParams != null) {
-    d.DecodedParams = .DecodedParams
-  } else {
-    d.DecodedParams = {}
-  }
-
   d.SubCallOf = .SubCallOf
   d.From = .Addresses.From
   d.RobustFrom = .Addresses.RobustFrom
   d.RobustTo = .Addresses.RobustTo
   d.To = .Addresses.To
-  d.Value = .Message.Value
+  d.Value = .Value
   d.GasLimit = .Message.GasLimit
   d.GasFeeCap = .Message.GasFeeCap
   d.GasPremium = .Message.GasPremium
   d.Method = .Message.Method
-  d.Params = .Message.Params
+  d.Params =.Message.Params
   . = d
 '''
 
+[sinks.clickhouse_bls]
+type = "clickhouse"
+inputs = [ "parse_bls" ]
+database = "flow"
+endpoint = "https://db.lotus-node.dev"
+table = "actor_bls"
+compression = "gzip"
+auth.strategy="basic"
+auth.user="default"
+auth.password="flow_p"
+buffer.when_full="block"
+buffer.type="disk"
+buffer.max_size=104900000000
+batch.max_events=1000000
 
-#[sinks.out]
-#inputs = ["to_table"]
-#type = "console"
-#encoding.codec = "json"
-
-[sinks.clickhouse]
+[sinks.clickhouse_message]
 type = "clickhouse"
 inputs = [ "to_table" ]
 database = "flow"
@@ -62,23 +78,10 @@ auth.user="default"
 auth.password="flow_p"
 buffer.when_full="block"
 buffer.type="disk"
-buffer.max_size=9904900000000
+buffer.max_size=104900000000
+batch.max_events=100
 
-[transforms.contracts]
-type = "filter"
-inputs = ["to_table"]
-condition = '''.From == "t01" && .Method == 1 && .SubCallOf != null'''
-
-[sinks.kafka_contract]
-type = "kafka"
-inputs = [ "contracts" ]
-bootstrap_servers = "127.0.0.1:9092"
-key_field = "Cid"
-topic = "new_contract"
-compression = "gzip"
-buffer.when_full="block"
-buffer.type="disk"
-buffer.max_size=9904900000000
-
-[sinks.kafka_contract.encoding]
-codec = "json"
+[sinks.out]
+inputs = ["bls"]
+type = "console"
+encoding.codec = "json"

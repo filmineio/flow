@@ -17,6 +17,17 @@ type = "filter"
 inputs = ["parse"]
 condition = '''.Message.From == "t01" || (.Message.To == "t01" && starts_with(to_string(.Message.From) ?? "", "t3")) || starts_with(to_string(.Message.From) ?? "", "t3")'''
 
+[transforms.bench]
+type = "filter"
+inputs = ["parse"]
+condition = '''.target_height != null'''
+
+
+[sinks.out]
+inputs = ["bench"]
+type = "console"
+encoding.codec = "text"
+
 [sinks.file_contract]
 type = "file"
 inputs = [ "contract" ]

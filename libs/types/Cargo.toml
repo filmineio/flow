@@ -6,3 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+serde = { version="1.0.144", features=[ "derive" ] }
+serde_json = "1.0.85"
+fil_builtin_actors_state = "8.0.0"
+fil_actor_cron = "8.0.0"
+fil_actor_init = "8.0.0"
+fil_actor_reward = "8.0.0
+fil_actor_account = "8.0.0
+fil_actor_miner = "8.0.0
+fil_actor_multisig = "8.0.0
+fil_actor_paych = "8.0.0
+fil_actor_power = "8.0.0
+fil_actor_system = "8.0.0
+fil_actor_bundler = "8.0.0
+fil_actor_verifreg = "8.0.0

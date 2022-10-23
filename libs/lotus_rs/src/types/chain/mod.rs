@@ -1,3 +1,4 @@
+pub mod actor_state;
 pub mod block;
 pub mod block_messages;
 pub mod chain_head;
