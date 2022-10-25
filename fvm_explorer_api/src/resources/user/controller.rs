@@ -1,10 +1,10 @@
-use crate::resources::user::handlers::{create, one};
-use crate::shared::traits::resource::Resource;
+use crate::resources::user::service::{create, one};
+use crate::shared::traits::resource_service::ResourceService;
 use actix_web::web;
 
 pub struct UserController {}
 
-impl Resource for UserController {
+impl ResourceService for UserController {
     fn configure(cfg: &mut web::ServiceConfig) -> () {
         cfg.service(
             web::resource("/user")

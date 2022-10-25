@@ -1,15 +1,16 @@
+use crate::shared::traits::api_resource::ApiResource;
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub enum SortDirection {
-    ASC = 1,
-    DESC = -1,
+    ASC,
+    DESC,
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct ApiQuery {
     pub search: Option<String>,
+    pub search_by: Option<String>,
     pub limit: Option<i64>,
     pub skip: Option<i64>,
     pub order_by: Option<String>,
@@ -17,35 +18,27 @@ pub struct ApiQuery {
 }
 
 impl ApiQuery {
-    pub fn get_pagination(&self) -> String {
-        let mut str = String::from("");
-
-        if let Some(order_by) = &self.order_by {
-            str = format!(
-                "{} ORDER BY {} {}",
-                str,
-                order_by,
-                &self.get_sort_direction()
-            )
-        }
-
-        if let Some(limit) = self.limit {
-            str = format!("{} LIMIT {}", str, limit)
-        }
-
-        if let Some(skip) = self.skip {
-            str = format!("{} OFFSET {}", str, skip)
-        }
-
-        str.clone()
-    }
-
-    fn get_sort_direction(&self) -> String {
+    pub fn get_sort_direction(&self) -> String {
         let v = self.order_direction.clone().unwrap_or(SortDirection::ASC);
 
         match v {
             SortDirection::ASC => "ASC".to_string(),
             SortDirection::DESC => "DESC".to_string(),
+        }
+    }
+
+    pub fn get_order_by<T: ApiResource>(&self) -> String {
+        T::match_order_by(self.order_by.clone().unwrap_or(T::default_order_by()))
+    }
+
+    pub fn get_search_by<T: ApiResource>(&self) -> Vec<String> {
+        T::match_search_by(self.search_by.clone().unwrap_or(T::default_search_by()))
+    }
+
+    pub fn get_search_term(&self) -> Option<String> {
+        match &self.search {
+            None => None,
+            Some(val) => Some(sql_lexer::sanitize_string(val.to_string())),
         }
     }
 }

@@ -71,6 +71,7 @@ pub struct FlowMessage {
     pub SubCallOf: Option<String>,
     pub Addresses: Addresses,
     pub Value: Option<i64>,
+    pub BlockTimestamp: Option<String>,
 }
 
 impl From<Message> for Addresses {
@@ -157,6 +158,7 @@ impl From<ExecutionTrace> for FlowMessage {
             SubCallOf: None,
             Addresses: Addresses::from(exec_trace.Msg),
             Value: Some(val),
+            BlockTimestamp: None,
         }
     }
 }
@@ -180,6 +182,10 @@ pub struct Bench {
 }
 
 impl FlowMessage {
+    pub fn set_block_timestamp(&mut self, ts: String) {
+        self.BlockTimestamp = Some(ts);
+    }
+
     pub async fn resolve_addresses(
         &mut self,
         client: &LotusClient,

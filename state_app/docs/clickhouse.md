@@ -24,23 +24,13 @@ CREATE TABLE flow.messages (
   `GasPremium` String,
   `Method` Int64,
   `Params` String,
-  `Value` Int64
+  `Value` Int64,
+  `BlockTimestamp` Int64
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
-  Cid,
-  From,
-    To,
-    RobustFrom,
-    RobustTo
+  Cid
 )
 ORDER BY
-  (
-    Cid,
-    From,
-      To,
-      RobustFrom,
-      RobustTo,
-      Height
-  ) SETTINGS index_granularity = 8192
+    Cid
 ```
 
 ## Create Actor BLS Table (The Latest balance on chain)
@@ -54,7 +44,7 @@ CREATE TABLE flow.actor_bls (
   `Processed` Int64
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (ActorId)
 ORDER BY
-  (ActorId) SETTINGS index_granularity = 8192
+  (ActorId)
 ```
 
 ## Create Contracts View
@@ -124,5 +114,37 @@ GROUP BY
     TransactionCount,
     Balance,
     OnChainBalance
+  )
+```
+
+## Create SubCalls Count View
+```sql
+CREATE MATERIALIZED VIEW flow.sub_calls (
+  `MessageCid` String,
+  `SubCallsCount` Int64
+) ENGINE = ReplacingMergeTree
+ORDER BY
+  MessageCid AS
+SELECT
+  m.Cid AS MessageCid,
+  count(s.Cid) as SubCallsCount
+FROM flow.messages as m
+INNER JOIN (
+    select Cid, SubCallOf from flow.messages GROUP BY (SubCallOf, Cid)
+) as s on s.SubCallOf = m.Cid
+GROUP BY (m.Cid)
+```
+
+## Create Block Table
+```sql
+CREATE TABLE flow.block (
+  `Cid` String,
+  `Block` String
+) ENGINE = ReplacingMergeTree PRIMARY KEY (
+  Cid
+)
+ORDER BY
+  (
+    Cid
   )
 ```

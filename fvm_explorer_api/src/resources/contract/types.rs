@@ -1,4 +1,5 @@
-use crate::shared::traits::from_ch_result::FromRow;
+use crate::shared::traits::api_resource::ApiResource;
+use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use clickhouse_rs::types::{Complex, Row};
 use serde::{Deserialize, Serialize};
 
@@ -25,5 +26,37 @@ impl FromRow<Contract> for Contract {
         c.contract_id = row.get("ContractId")?;
 
         Ok(c)
+    }
+}
+
+impl ApiResource for Contract {
+    fn get_table() -> String {
+        return "flow.contracts".to_string();
+    }
+
+    fn default_order_by() -> String {
+        return "ContractId".to_string();
+    }
+
+    fn default_search_by() -> String {
+        return "".to_string();
+    }
+
+    fn match_order_by(order_by: String) -> String {
+        match order_by.to_lowercase().as_str() {
+            "balance" => "Balance".to_string(),
+            "transactioncount" => "TransactionCount".to_string(),
+            _ => "ContractId".to_string(),
+        }
+    }
+
+    fn match_search_by(search: String) -> Vec<String> {
+        match search.to_lowercase().as_str() {
+            "owner" => vec!["OwnerId".to_string(), "OwnerRobustAddress".to_string()],
+            _ => vec![
+                "ContractId".to_string(),
+                "ContractRobustAddress".to_string(),
+            ],
+        }
     }
 }

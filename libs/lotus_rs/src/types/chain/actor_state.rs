@@ -1,4 +1,3 @@
-use crate::CID;
 use serde::{Deserialize, Serialize};
 
 #[allow(non_snake_case)]

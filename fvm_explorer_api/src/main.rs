@@ -3,9 +3,11 @@
 mod resources;
 mod shared;
 use crate::resources::user::controller::UserController;
-use crate::shared::traits::resource::Resource;
+use crate::shared::traits::resource_service::ResourceService;
 
+use crate::resources::block::controller::BlockController;
 use crate::resources::contract::controller::ContractController;
+use crate::resources::transaction::controller::TransactionController;
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
 use crate::shared::logger::logger::{Init, Logger};
@@ -27,6 +29,8 @@ async fn main() -> Result<()> {
             .app_data(Data::new(ctx.clone()))
             .configure(UserController::configure)
             .configure(ContractController::configure)
+            .configure(TransactionController::configure)
+            .configure(BlockController::configure)
     })
     .bind(("127.0.0.1", port))?
     .run()

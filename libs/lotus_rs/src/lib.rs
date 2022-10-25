@@ -6,12 +6,11 @@ use crate::client::LotusClient;
 
 use crate::types::api::{RPCRequest, Rs};
 use crate::types::chain::actor_state::ActorState;
-use crate::types::chain::block_messages::BlockMessages;
 use crate::types::chain::chain_head::ChainHead;
 use crate::types::chain::cid::CID;
 use crate::types::chain::message::Message;
 use crate::types::state::state::State;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use serde_json::Value::Null;
 use serde_json::{json, Value};
 

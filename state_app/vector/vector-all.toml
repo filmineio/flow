@@ -17,16 +17,10 @@ type = "filter"
 inputs = ["parse"]
 condition = ".Block != null && .ActorId == null"
 
-[transforms.trace]
-type = "filter"
-inputs = ["parse"]
-condition = ".SubCallOf != null"
-
 [transforms.message]
 type = "filter"
 inputs = ["parse"]
-condition = ".SubCallOf == null && .Message != null"
-
+condition = ".Message != null"
 
 [transforms.bls]
 type = "filter"
@@ -44,35 +38,90 @@ type = "filter"
 inputs = ["parse"]
 condition = '''.target_height != null'''
 
-[sinks.file_block]
-type = "file"
-inputs = [ "block" ]
-compression = "none"
-path = '''/Volumes/flowdata/block/{{ Block.Height }}.{{ Cid }}.json'''
-encoding.codec = "json"
-
-#[sinks.file_trace]
-#type = "file"
-#inputs = [ "trace" ]
-#compression = "none"
-#path = "/Volumes/flowdata/trace/{{ Height }}.{{ BlockCid }}.{{ SubCallOf }}.json"
-#encoding.codec = "json"
-
 [sinks.out]
 inputs = ["bench"]
 type = "console"
 encoding.codec = "json"
 
-[sinks.file_message]
-type = "file"
-inputs = [ "message", "trace" ]
-compression = "none"
-path = "/Volumes/flowdata/messages/all.json"
-encoding.codec = "json"
+[transforms.to_table]
+type = "remap"
+inputs = ["message"]
+source = '''
+  d = {}
+  d.Cid = .Cid
+  d.Height = .Height
+  d.Block = .BlockCid
+  d.MessageRctExitCode = .MessageRct.ExitCode
+  d.MessageRctReturn = .MessageRct.Return
+  d.MessageRctGasUsed = .MessageRct.GasUsed
+  d.SubCallOf = .SubCallOf
+  d.From = .Addresses.From
+  d.RobustFrom = .Addresses.RobustFrom
+  d.RobustTo = .Addresses.RobustTo
+  d.To = .Addresses.To
+  d.Value = .Value
+  d.GasLimit = .Message.GasLimit
+  d.GasFeeCap = .Message.GasFeeCap
+  d.GasPremium = .Message.GasPremium
+  d.Method = .Message.Method
+  d.Params =.Message.Params
+  d.BlockTimestamp = .BlockTimestamp
+  . = d
+'''
 
-[sinks.file_bls]
-type = "file"
+
+[transforms.to_blk_table]
+type = "remap"
+inputs = ["block"]
+source = '''
+  d = {}
+  d.Cid = .Cid
+  d.Block = encode_json(.Block)
+  . = d
+'''
+
+[sinks.clickhouse_bls]
+type = "clickhouse"
 inputs = [ "dedupe_bls" ]
-compression = "none"
-path = "/Volumes/flowdata/bls/all.json"
-encoding.codec = "json"
+database = "flow"
+endpoint = "http://localhost:8123"
+table = "actor_bls"
+compression = "gzip"
+auth.strategy="basic"
+auth.user="flow_u"
+auth.password="flow_p"
+buffer.when_full="block"
+buffer.type="disk"
+buffer.max_size=500000000
+batch.max_events=10
+
+[sinks.clickhouse_blk]
+type = "clickhouse"
+inputs = [ "to_blk_table" ]
+database = "flow"
+endpoint = "http://localhost:8123"
+table = "block"
+compression = "gzip"
+auth.strategy="basic"
+auth.user="flow_u"
+auth.password="flow_p"
+buffer.when_full="block"
+buffer.type="disk"
+buffer.max_size=500000000
+batch.max_events=10
+
+
+[sinks.clickhouse_message]
+type = "clickhouse"
+inputs = [ "to_table" ]
+database = "flow"
+endpoint = "http://localhost:8123"
+table = "messages"
+compression = "gzip"
+auth.strategy="basic"
+auth.user="flow_u"
+auth.password="flow_p"
+buffer.when_full="block"
+buffer.type="disk"
+buffer.max_size=500000000
+batch.max_events=10

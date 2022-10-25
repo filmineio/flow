@@ -1,12 +1,15 @@
 use crate::shared::ctx::ch::CH;
 use crate::AppConfig;
 use deadpool_postgres::Pool;
+use lotus_rs::client::LotusClient;
+use lotus_rs::config::LotusConfig;
 use tokio_postgres::NoTls;
 
 #[derive(Clone)]
 pub struct AppCtx {
     pub pg_pool: Pool,
     pub ch_pool: CH,
+    pub lotus_client: LotusClient,
 }
 
 impl TryFrom<AppConfig> for AppCtx {
@@ -16,6 +19,7 @@ impl TryFrom<AppConfig> for AppCtx {
         let ctx = AppCtx {
             pg_pool: value.pg.get_pool().create_pool(None, NoTls)?,
             ch_pool: CH::from(value),
+            lotus_client: LotusClient::init(LotusConfig::from_env()),
         };
         Ok(ctx)
     }

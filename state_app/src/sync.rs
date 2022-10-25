@@ -34,6 +34,7 @@ pub async fn sync(
 
         for mut msg in msgs {
             msg.resolve_addresses(client, map).await;
+            msg.set_block_timestamp(blk_timestamp.clone());
             println!("{}", json!(&msg));
 
             if msg.Value.unwrap_or(0) > 0 {

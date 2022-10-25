@@ -1,2 +1,3 @@
-pub mod from_ch_result;
-pub mod resource;
+pub mod api_resource;
+pub mod clickhouse;
+pub mod resource_service;
