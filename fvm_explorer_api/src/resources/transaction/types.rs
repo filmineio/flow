@@ -48,7 +48,7 @@ impl Transaction {
             to: tx.to.clone(),
         };
 
-        if tx.from == me {
+        if tx.from == me || tx.robust_from == me {
             next_state.next_bls = next_state.current_bls - tx.value;
         } else {
             next_state.next_bls = next_state.current_bls + tx.value;

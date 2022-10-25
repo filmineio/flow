@@ -1,5 +1,3 @@
-#![feature(box_into_inner)]
-
 mod resources;
 mod shared;
 use crate::resources::user::controller::UserController;
@@ -11,6 +9,7 @@ use crate::resources::transaction::controller::TransactionController;
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
 use crate::shared::logger::logger::{Init, Logger};
+use actix_cors::Cors;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use anyhow::Result;
@@ -25,7 +24,10 @@ async fn main() -> Result<()> {
     let ctx = AppCtx::try_from(config)?;
 
     HttpServer::new(move || {
+        let cors = Cors::permissive();
+
         App::new()
+            .wrap(cors)
             .app_data(Data::new(ctx.clone()))
             .configure(UserController::configure)
             .configure(ContractController::configure)

@@ -34,3 +34,4 @@ chrono = "0.4.22"
 log = "0.4.17"
 sql_lexer="0.9.3"
 lotus_rs = { path = "../libs/lotus_rs"}
+actix-cors = "0.6.3"
