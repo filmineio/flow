@@ -24,15 +24,15 @@ async fn main() -> Result<()> {
     let ctx = AppCtx::try_from(config)?;
 
     HttpServer::new(move || {
-        let cors = Cors::permissive();
+        let cors = Cors::permissive().allow_any_origin().allow_any_header().allow_any_method();
 
         App::new()
-            .wrap(cors)
             .app_data(Data::new(ctx.clone()))
             .configure(UserController::configure)
             .configure(ContractController::configure)
             .configure(TransactionController::configure)
             .configure(BlockController::configure)
+            .wrap(cors)
     })
     .bind(("127.0.0.1", port))?
     .run()
