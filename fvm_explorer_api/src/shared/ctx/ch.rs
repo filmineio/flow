@@ -3,7 +3,6 @@ use crate::shared::traits::api_resource::ApiResource;
 use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use crate::shared::types::result_with_total::ResultWithTotal;
 use crate::AppConfig;
-use actix_web::web;
 use clickhouse_rs::Pool;
 use log::error;
 
@@ -74,7 +73,7 @@ impl CH {
 
     pub fn get_query_filters<DT: FromRow<DT> + ApiResource + Default + Clone>(
         &self,
-        query: web::Query<ApiQuery>,
+        query: ApiQuery,
     ) -> String {
         let mut query_string = "".to_string();
 

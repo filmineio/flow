@@ -1,4 +1,4 @@
-use crate::resources::contract::types::{Contract, ContractBytecode};
+use crate::resources::contract::types::{Contract, ContractBytecode, ContractBytecodePath};
 use crate::shared::api_helpers::api_query::ApiQuery;
 use crate::AppCtx;
 use actix_web::{web, HttpResponse, Responder};
@@ -16,7 +16,7 @@ pub async fn list(query: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl R
                 "Balance",
                 "TransactionCount"
             ]),
-            ctx.ch_pool.get_query_filters::<Contract>(query)
+            ctx.ch_pool.get_query_filters::<Contract>(query.into_inner())
         ))
         .await
     {
@@ -27,18 +27,20 @@ pub async fn list(query: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl R
     HttpResponse::Ok().json(default)
 }
 
-pub struct PathInfo {
-    contract_address: String,
-}
 pub async fn get_bytecode(
-    contract_path_info: web::Path<PathInfo>,
+    contract_path_info: web::Path<ContractBytecodePath>,
     ctx: web::Data<AppCtx>,
 ) -> impl Responder {
+
+    let mut query = ApiQuery::default();
+    query.search = Some(contract_path_info.into_inner().contract_address);
+
     if let Some(res) = ctx
         .ch_pool
         .query::<ContractBytecode>(&format!(
-            "{}",
-            ctx.ch_pool.prepare_query::<Contract>(vec!["Bytecode"]),
+            "{} {}",
+            ctx.ch_pool.prepare_query::<ContractBytecode>(vec!["Bytecode"]),
+            ctx.ch_pool.get_query_filters::<ContractBytecode>(query)
         ))
         .await
     {

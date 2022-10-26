@@ -1,10 +1,11 @@
-use crate::resources::transaction::types::{DecodeParamsBody, StateTransition, Transaction};
+use crate::resources::transaction::types::{DecodeParamsBody, Transaction};
 use crate::shared::api_helpers::api_query::ApiQuery;
 use crate::AppCtx;
 use actix_web::{web, HttpResponse, Responder};
 use serde_json::Value::Null;
 
-pub async fn list(query: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
+pub async fn list(q: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
+    let query = q.into_inner();
     if let Some(mut res) = ctx
         .ch_pool
         .query::<Transaction>(&format!(

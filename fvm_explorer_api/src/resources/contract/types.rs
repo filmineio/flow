@@ -57,12 +57,15 @@ impl ApiResource for ContractBytecode {
         return "".to_string();
     }
 
-    fn match_order_by(order_by: String) -> String {
+    fn match_order_by(_order_by: String) -> String {
         "".to_string()
     }
 
-    fn match_search_by(search: String) -> Vec<String> {
-        vec!["".to_string()]
+    fn match_search_by(_search: String) -> Vec<String> {
+        vec![
+            "ContractId".to_string(),
+            "ContractRobustAddress".to_string(),
+        ]
     }
 }
 
@@ -96,4 +99,9 @@ impl ApiResource for Contract {
             ],
         }
     }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ContractBytecodePath {
+    pub contract_address: String,
 }
