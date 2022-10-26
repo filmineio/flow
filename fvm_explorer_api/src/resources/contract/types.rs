@@ -14,6 +14,21 @@ pub struct Contract {
     balance: i64,
 }
 
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ContractBytecode {
+    bytecode: String,
+}
+
+impl FromRow<ContractBytecode> for ContractBytecode {
+    fn from_row(row: Row<Complex>) -> anyhow::Result<ContractBytecode> {
+        let mut c = Self::default();
+        c.bytecode = row.get("Bytecode")?;
+
+        Ok(c)
+    }
+}
+
 impl FromRow<Contract> for Contract {
     fn from_row(row: Row<Complex>) -> anyhow::Result<Self> {
         let mut c = Self::default();
@@ -26,6 +41,28 @@ impl FromRow<Contract> for Contract {
         c.contract_id = row.get("ContractId")?;
 
         Ok(c)
+    }
+}
+
+impl ApiResource for ContractBytecode {
+    fn get_table() -> String {
+        return "flow.contracts".to_string();
+    }
+
+    fn default_order_by() -> String {
+        return "".to_string();
+    }
+
+    fn default_search_by() -> String {
+        return "".to_string();
+    }
+
+    fn match_order_by(order_by: String) -> String {
+        "".to_string()
+    }
+
+    fn match_search_by(search: String) -> Vec<String> {
+        vec!["".to_string()]
     }
 }
 

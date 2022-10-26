@@ -45,6 +45,7 @@ impl CH {
                 Ok(res) => {
                     let mut r = ResultWithTotal {
                         total: 0,
+                        network: "Wallabynet".to_string(),
                         rows: vec![],
                     };
 
