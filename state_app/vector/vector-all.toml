@@ -22,6 +22,11 @@ type = "filter"
 inputs = ["parse"]
 condition = ".Message != null"
 
+[transforms.filter]
+type = "filter"
+inputs = ["parse"]
+condition = ".Message != null"
+
 [transforms.bls]
 type = "filter"
 inputs = ["parse"]
@@ -65,7 +70,8 @@ source = '''
   d.GasPremium = .Message.GasPremium
   d.Method = .Message.Method
   d.Params =.Message.Params
-  d.BlockTimestamp = .BlockTimestamp
+  d.Timestamp = .BlockTimestamp
+  d.Nonce = .Message.Nonce
   . = d
 '''
 
@@ -79,6 +85,7 @@ source = '''
   d.Block = encode_json(.Block)
   d.Timestamp = .Block.Timestamp
   d.Height = .Block.Height
+  d.Miner = .Block.Miner
   . = d
 '''
 
@@ -127,3 +134,4 @@ buffer.when_full="block"
 buffer.type="disk"
 buffer.max_size=500000000
 batch.max_events=10
+

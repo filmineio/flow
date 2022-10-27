@@ -25,7 +25,8 @@ CREATE TABLE flow.messages (
   `Method` Int64,
   `Params` String,
   `Value` Int64,
-  `BlockTimestamp` Int64
+  `Timestamp` Int64,
+  `Nonce` Int64
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
   Cid
 )
@@ -55,49 +56,20 @@ CREATE MATERIALIZED VIEW flow.contracts (
   `ContractRobustAddress` String,
   `OwnerId` String,
   `OwnerRobustAddress` String,
-  `TransactionCount` Int64,
-  `Balance` Int64,
-  `OnChainBalance` Int64,
   `Bytecode` String
-) ENGINE = ReplacingMergeTree PARTITION BY ContractId
+) ENGINE = ReplacingMergeTree PRIMARY KEY (ContractId, ContractRobustAddress)
 ORDER BY
-  ContractId SETTINGS index_granularity = 8192 AS
+  (ContractId, ContractRobustAddress) AS
 SELECT
   tr.Cid AS Cid,
   tr.To AS ContractId,
   tr.RobustTo AS ContractRobustAddress,
   msg.From AS OwnerId,
   msg.RobustFrom AS OwnerRobustAddress,
-  msg.Params as Bytecode,
-  i.Val - o.Val AS Balance,
-  i.Num + o.Num AS TransactionCount,
-  a.Balance AS OnChainBalance
+  msg.Params as Bytecode
 FROM
   flow.messages AS tr
   INNER JOIN flow.messages AS msg ON tr.SubCallOf = msg.Cid
-  LEFT JOIN (
-    SELECT
-      To,
-      sum(Value) AS Val,
-      count(To) AS Num
-    FROM
-      flow.messages
-  ) AS i ON i.To = ContractId
-  LEFT JOIN (
-    SELECT
-    From,
-      sum(Value) AS Val,
-      count(From) AS Num
-    FROM
-      flow.messages
-  ) AS o ON o.From = ContractId
-  LEFT JOIN (
-    SELECT
-      ActorId,
-      Balance
-    FROM
-      flow.actor_bls
-  ) AS a ON a.ActorId = ContractId
 WHERE
   (tr.From = 't01')
   AND (tr.Method = 1)
@@ -109,9 +81,6 @@ GROUP BY
     ContractRobustAddress,
     OwnerId,
     OwnerRobustAddress,
-    TransactionCount,
-    Balance,
-    OnChainBalance,
     Bytecode
   )
 ```
@@ -134,13 +103,55 @@ INNER JOIN (
 GROUP BY (m.Cid)
 ```
 
+## Create contract_bls Table
+```sql
+CREATE MATERIALIZED VIEW flow.contracts_bls (
+  `ContractId` String,
+  `TransactionCount` Int64,
+  `Balance` Int64
+) ENGINE = ReplacingMergeTree PRIMARY KEY (ContractId)
+ORDER BY
+  (ContractId) AS
+SELECT
+  t.ActorId as ContractId,
+  t.Balance as Balance,
+  i.Num + o.Num AS TransactionCount
+FROM
+  flow.actor_bls AS t
+  LEFT JOIN (
+    SELECT
+      Cid,
+      RobustTo,
+      count(Value) AS Num  
+    FROM
+      flow.messages
+    GROUP BY (Cid, RobustTo)
+  ) AS i ON i.RobustTo = ContractId
+  LEFT JOIN (
+    SELECT
+    Cid,
+    RobustFrom,
+      count(Value) AS Num
+    FROM
+      flow.messages
+    GROUP BY (Cid, RobustFrom)
+  ) AS o ON o.RobustFrom = ContractId
+GROUP BY
+  (
+    ContractId,
+    TransactionCount,
+    Balance
+  )
+```
+
 ## Create Block Table
 ```sql
 CREATE TABLE flow.block (
   `Cid` String,
   `Block` String,
   `Height` Int64,
-  `Timestamp` Int64
+  `Timestamp` Int64,
+  `Miner` String
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
   Cid
 )

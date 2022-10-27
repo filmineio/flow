@@ -38,8 +38,8 @@ pub async fn sync(
             println!("{}", json!(&msg));
 
             if msg.Value.unwrap_or(0) > 0 {
-                block_actors.insert(msg.Addresses.From);
-                block_actors.insert(msg.Addresses.To);
+                block_actors.insert(msg.Addresses.RobustFrom);
+                block_actors.insert(msg.Addresses.RobustTo);
             }
         }
 
