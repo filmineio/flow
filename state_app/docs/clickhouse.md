@@ -57,7 +57,8 @@ CREATE MATERIALIZED VIEW flow.contracts (
   `OwnerRobustAddress` String,
   `TransactionCount` Int64,
   `Balance` Int64,
-  `OnChainBalance` Int64
+  `OnChainBalance` Int64,
+  `Bytecode` String
 ) ENGINE = ReplacingMergeTree PARTITION BY ContractId
 ORDER BY
   ContractId SETTINGS index_granularity = 8192 AS
@@ -67,6 +68,7 @@ SELECT
   tr.RobustTo AS ContractRobustAddress,
   msg.From AS OwnerId,
   msg.RobustFrom AS OwnerRobustAddress,
+  msg.Params as Bytecode,
   i.Val - o.Val AS Balance,
   i.Num + o.Num AS TransactionCount,
   a.Balance AS OnChainBalance
@@ -77,21 +79,17 @@ FROM
     SELECT
       To,
       sum(Value) AS Val,
-      count(Cid) AS Num
+      count(To) AS Num
     FROM
       flow.messages
-    GROUP BY
-      To
   ) AS i ON i.To = ContractId
   LEFT JOIN (
     SELECT
     From,
       sum(Value) AS Val,
-      count(Cid) AS Num
+      count(From) AS Num
     FROM
       flow.messages
-    GROUP BY
-    From
   ) AS o ON o.From = ContractId
   LEFT JOIN (
     SELECT
@@ -113,7 +111,8 @@ GROUP BY
     OwnerRobustAddress,
     TransactionCount,
     Balance,
-    OnChainBalance
+    OnChainBalance,
+    Bytecode
   )
 ```
 
@@ -139,7 +138,9 @@ GROUP BY (m.Cid)
 ```sql
 CREATE TABLE flow.block (
   `Cid` String,
-  `Block` String
+  `Block` String,
+  `Height` Int64,
+  `Timestamp` Int64
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
   Cid
 )

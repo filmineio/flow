@@ -32,6 +32,8 @@ pub struct Transaction {
     pub method: i64,
     pub params: String,
     pub value: i64,
+    pub timestamp: i64,
+    pub nonce: i64,
     pub state_transition: Option<StateTransition>,
 }
 
@@ -81,6 +83,9 @@ impl FromRow<Transaction> for Transaction {
         c.method = row.get("Method")?;
         c.params = row.get("Params")?;
         c.value = row.get("Value")?;
+        c.timestamp = row.get("Timestamp")?;
+        c.nonce = row.get("Nonce")?;
+
         c.state_transition = None;
 
         Ok(c)
@@ -103,7 +108,7 @@ impl ApiResource for Transaction {
     fn match_order_by(order_by: String) -> String {
         match order_by.to_lowercase().as_str() {
             "height" => "Height".to_string(),
-            _ => "BlockTimestamp".to_string(),
+            _ => "Timestamp".to_string(),
         }
     }
 

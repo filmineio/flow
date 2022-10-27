@@ -5,6 +5,7 @@ use crate::shared::traits::resource_service::ResourceService;
 
 use crate::resources::block::controller::BlockController;
 use crate::resources::contract::controller::ContractController;
+use crate::resources::project::controller::ProjectsController;
 use crate::resources::transaction::controller::TransactionController;
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
@@ -24,7 +25,10 @@ async fn main() -> Result<()> {
     let ctx = AppCtx::try_from(config)?;
 
     HttpServer::new(move || {
-        let cors = Cors::permissive().allow_any_origin().allow_any_header().allow_any_method();
+        let cors = Cors::permissive()
+            .allow_any_origin()
+            .allow_any_header()
+            .allow_any_method();
 
         App::new()
             .app_data(Data::new(ctx.clone()))
@@ -32,6 +36,7 @@ async fn main() -> Result<()> {
             .configure(ContractController::configure)
             .configure(TransactionController::configure)
             .configure(BlockController::configure)
+            .configure(ProjectsController::configure)
             .wrap(cors)
     })
     .bind(("127.0.0.1", port))?

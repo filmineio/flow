@@ -1,10 +1,18 @@
-use crate::shared::traits::api_resource::ApiResource;
-use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Deserialize, Serialize)]
-pub struct ResultWithTotal<T: FromRow<T> + ApiResource + Default + Clone> {
-    pub total: u64,
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ResultWithTotal<T: Default + Clone> {
+    pub total: i64,
     pub network: String,
     pub rows: Vec<T>,
+}
+
+impl<T: Default + Clone> Default for ResultWithTotal<T> {
+    fn default() -> Self {
+        Self {
+            total: 0,
+            network: "Wallabynet".to_string(),
+            rows: vec![],
+        }
+    }
 }

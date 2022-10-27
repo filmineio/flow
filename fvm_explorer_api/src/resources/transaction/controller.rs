@@ -1,4 +1,4 @@
-use crate::resources::transaction::service::{decode_params, list};
+use super::service::{decode_params, list};
 use crate::ResourceService;
 use actix_web::web;
 

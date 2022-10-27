@@ -12,6 +12,7 @@ pub struct Contract {
     owner_address: String,
     transaction_count: i64,
     balance: i64,
+    compiler: String,
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -39,6 +40,7 @@ impl FromRow<Contract> for Contract {
         c.balance = row.get("Balance")?;
         c.transaction_count = row.get("TransactionCount")?;
         c.contract_id = row.get("ContractId")?;
+        c.compiler = "unknown".to_string();
 
         Ok(c)
     }

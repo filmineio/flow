@@ -31,7 +31,7 @@ condition = ".ActorId != null"
 type = "dedupe"
 inputs = [ "bls" ]
 cache.num_events=100000
-fields.match=["ActorId", "Balance"]
+fields.match=["ActorId", "Processed"]
 
 [transforms.bench]
 type = "filter"
@@ -77,6 +77,8 @@ source = '''
   d = {}
   d.Cid = .Cid
   d.Block = encode_json(.Block)
+  d.Timestamp = .Block.Timestamp
+  d.Height = .Block.Height
   . = d
 '''
 

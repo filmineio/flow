@@ -1,5 +1,6 @@
-use crate::resources::transaction::types::{DecodeParamsBody, Transaction};
+use super::types::{DecodeParamsBody, Transaction};
 use crate::shared::api_helpers::api_query::ApiQuery;
+use crate::shared::utils::query_utils::QueryUtils;
 use crate::AppCtx;
 use actix_web::{web, HttpResponse, Responder};
 use serde_json::Value::Null;
@@ -9,10 +10,11 @@ pub async fn list(q: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Respo
     if let Some(mut res) = ctx
         .ch_pool
         .query::<Transaction>(&format!(
-            "{} {}",
-            ctx.ch_pool.prepare_query::<Transaction>(vec!["*"]),
-            ctx.ch_pool.get_query_filters::<Transaction>(query.clone())
-        ))
+                    "{} {}",
+                    QueryUtils::prepare_query::<Transaction>(vec!["*"]),
+                    QueryUtils::get_query_filters::<Transaction>(query.clone())
+                ),
+        )
         .await
     {
         if let Some(v) = query.search_by.clone() {

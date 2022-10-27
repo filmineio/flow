@@ -1,4 +1,4 @@
-use crate::resources::block::service::list;
+use super::service::list;
 use crate::ResourceService;
 use actix_web::web;
 
