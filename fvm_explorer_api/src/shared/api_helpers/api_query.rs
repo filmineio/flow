@@ -19,7 +19,7 @@ pub struct ApiQuery {
 
 impl ApiQuery {
     pub fn get_sort_direction(&self) -> String {
-        let v = self.order_direction.clone().unwrap_or(SortDirection::ASC);
+        let v = self.order_direction.clone().unwrap_or(SortDirection::DESC);
 
         match v {
             SortDirection::ASC => "ASC".to_string(),

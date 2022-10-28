@@ -27,7 +27,7 @@ impl ApiResource for Block {
     }
 
     fn default_order_by() -> String {
-        return "Cid".to_string();
+        return "Timestamp".to_string();
     }
 
     fn default_search_by() -> String {
@@ -36,7 +36,7 @@ impl ApiResource for Block {
 
     fn match_order_by(order_by: String) -> String {
         match order_by.to_lowercase().as_str() {
-            _ => "Cid".to_string(),
+            _ => "Timestamp".to_string(),
         }
     }
 
