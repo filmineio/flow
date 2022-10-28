@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
             } else {
                 current_height += 1;
             }
-            sleep(Duration::new(1, 0)).await;
+            sleep(Duration::new(0, 3000)).await;
         }
         sleep(Duration::new(30, 0)).await;
     }
