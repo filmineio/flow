@@ -33,7 +33,7 @@ impl CH {
                     let rows = res
                         .rows()
                         .map(|v| {
-                            r.total = v.get(TOTAL_RES_KEY).unwrap_or(0);
+                            r.set_total_u(v.get(TOTAL_RES_KEY).unwrap_or(0));
                             DT::from_row(v).unwrap_or(DT::default())
                         })
                         .collect::<Vec<DT>>();

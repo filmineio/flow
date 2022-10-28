@@ -16,3 +16,8 @@ impl<T: Default + Clone> Default for ResultWithTotal<T> {
         }
     }
 }
+impl<T: Default + Clone> ResultWithTotal<T> {
+    pub fn set_total_u(&mut self, v: u64) {
+        self.total = v as i64;
+    }
+}
