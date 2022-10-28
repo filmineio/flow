@@ -43,9 +43,9 @@ CREATE TABLE flow.actor_bls (
   `ActorId` String,
   `Balance` Int64,
   `Processed` Int64
-) ENGINE = ReplacingMergeTree PRIMARY KEY (ActorId)
+) ENGINE = ReplacingMergeTree PRIMARY KEY (ActorId, Processed, Block)
 ORDER BY
-  (ActorId)
+  (ActorId, Processed, Block)
 ```
 
 ## Create Contracts View
