@@ -1,5 +1,5 @@
 use super::service::{create, list};
-use crate::resources::project::service::{add_contract, remove_contract, update};
+use crate::resources::project::service::{add_contract, delete, remove_contract, update};
 use crate::ResourceService;
 use actix_web::web;
 
@@ -12,7 +12,11 @@ impl ResourceService for ProjectsController {
                 .route(web::get().to(list))
                 .route(web::post().to(create)),
         );
-        cfg.service(web::resource("/projects/{id}").route(web::patch().to(update)));
+        cfg.service(
+            web::resource("/projects/{id}")
+                .route(web::patch().to(update))
+                .route(web::delete().to(delete)),
+        );
         cfg.service(web::resource("/projects/{id}/add").route(web::patch().to(add_contract)));
         cfg.service(web::resource("/projects/{id}/remove").route(web::patch().to(remove_contract)));
     }

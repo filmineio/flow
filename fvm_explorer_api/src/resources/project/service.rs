@@ -126,6 +126,15 @@ pub async fn remove_contract(
     ))
 }
 
+pub async fn delete(info: web::Path<ProjectPath>, ctx: web::Data<AppCtx>) -> impl Responder {
+    let res = Project::delete(&ctx.pg_pool, info.into_inner().id).await;
+
+    match res {
+        Ok(_) => HttpResponse::Ok().json(ResultWithTotal::<()>::default()),
+        Err(_) => HttpResponse::BadRequest().json(Null),
+    }
+}
+
 fn to_res(rows: anyhow::Result<Vec<Row>>, write_action: bool) -> ResultWithTotal<Project> {
     match rows {
         Ok(v) => {
