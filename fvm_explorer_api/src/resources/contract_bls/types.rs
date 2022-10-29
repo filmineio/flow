@@ -14,7 +14,7 @@ pub struct ContractBls {
 impl FromRow<ContractBls> for ContractBls {
     fn from_row(row: Row<Complex>) -> anyhow::Result<ContractBls> {
         let mut c = Self::default();
-        c.contract_id = row.get("ContractId")?;
+        c.contract_id = row.get("ContractAddress")?;
         c.ok_transaction_count = row.get("TransactionCountOk")?;
         c.reverted_transaction_count = row.get("TransactionCountReverted")?;
 
@@ -28,18 +28,18 @@ impl ApiResource for ContractBls {
     }
 
     fn default_order_by() -> String {
-        return "ContractId".to_string();
+        return "ContractAddress".to_string();
     }
 
     fn default_search_by() -> String {
-        return "ContractId".to_string();
+        return "ContractAddress".to_string();
     }
 
     fn match_order_by(_order_by: String) -> String {
-        "ContractId".to_string()
+        "ContractAddress".to_string()
     }
 
     fn match_search_by(_search: String) -> Vec<String> {
-        vec!["ContractId".to_string()]
+        vec!["ContractAddress".to_string()]
     }
 }
