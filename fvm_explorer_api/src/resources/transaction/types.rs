@@ -51,10 +51,12 @@ impl Transaction {
             to: tx.to.clone(),
         };
 
-        if tx.from == me || tx.robust_from == me {
-            next_state.next_bls = next_state.current_bls - tx.value;
-        } else {
-            next_state.next_bls = next_state.current_bls + tx.value;
+        if tx.message_rct_exit_code == 0 {
+            if tx.from == me || tx.robust_from == me {
+                next_state.next_bls = next_state.current_bls - tx.value;
+            } else {
+                next_state.next_bls = next_state.current_bls + tx.value;
+            }
         }
 
         tx.state_transition = Some(next_state.clone());
