@@ -10,9 +10,13 @@ pub struct Contract {
     contract_address: String,
     owner_id: String,
     owner_address: String,
-    transaction_count: i64,
+    ok_transaction_count: u64,
+    reverted_transaction_count: u64,
     balance: i64,
     compiler: String,
+    contract_type: String,
+    eth_address: String,
+    contract_actor_address: String,
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -34,14 +38,16 @@ impl FromRow<Contract> for Contract {
     fn from_row(row: Row<Complex>) -> anyhow::Result<Self> {
         let mut c = Self::default();
 
-        c.owner_address = row.get("OwnerRobustAddress")?;
-        c.contract_address = row.get("ContractRobustAddress")?;
+        c.owner_address = row.get("OwnerAddress")?;
+        c.contract_address = row.get("ContractAddress")?;
         c.owner_id = row.get("OwnerId")?;
-        c.balance = row.get("Balance")?;
-        c.transaction_count = row.get("TransactionCount")?;
+        c.ok_transaction_count = row.get("TransactionCountOk")?;
+        c.reverted_transaction_count = row.get("TransactionCountReverted")?;
         c.contract_id = row.get("ContractId")?;
-        c.compiler = "unknown".to_string();
-
+        c.compiler = row.get("Compiler")?;
+        c.contract_type = row.get("ContractType")?;
+        c.eth_address = row.get("EthAddress")?;
+        c.contract_actor_address = row.get("ContractActorAddress")?;
         Ok(c)
     }
 }
@@ -66,7 +72,9 @@ impl ApiResource for ContractBytecode {
     fn match_search_by(_search: String) -> Vec<String> {
         vec![
             "ContractId".to_string(),
-            "ContractRobustAddress".to_string(),
+            "ContractAddress".to_string(),
+            "EthAddress".to_string().to_string(),
+            "ContractActorAddress".to_string(),
         ]
     }
 }
@@ -94,10 +102,12 @@ impl ApiResource for Contract {
 
     fn match_search_by(search: String) -> Vec<String> {
         match search.to_lowercase().as_str() {
-            "owner" => vec!["OwnerId".to_string(), "OwnerRobustAddress".to_string()],
+            "owner" => vec!["OwnerId".to_string(), "OwnerAddress".to_string()],
             _ => vec![
                 "ContractId".to_string(),
-                "ContractRobustAddress".to_string(),
+                "ContractAddress".to_string(),
+                "EthAddress".to_string().to_string(),
+                "ContractActorAddress".to_string(),
             ],
         }
     }

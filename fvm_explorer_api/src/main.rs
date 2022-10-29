@@ -1,18 +1,21 @@
 mod resources;
 mod shared;
-use crate::resources::user::controller::UserController;
-use crate::shared::traits::resource_service::ResourceService;
 
 use crate::resources::block::controller::BlockController;
 use crate::resources::contract::controller::ContractController;
 use crate::resources::project::controller::ProjectsController;
 use crate::resources::transaction::controller::TransactionController;
+use crate::resources::user::controller::UserController;
+
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
 use crate::shared::logger::logger::{Init, Logger};
+use crate::shared::traits::resource_service::ResourceService;
+
 use actix_cors::Cors;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
+
 use anyhow::Result;
 
 #[actix_web::main]

@@ -4,6 +4,8 @@ use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use crate::shared::types::result_with_total::ResultWithTotal;
 use crate::shared::utils::query_utils::TOTAL_RES_KEY;
 use crate::AppConfig;
+use anyhow::anyhow;
+use clickhouse_rs::types::QueryResult;
 use clickhouse_rs::Pool;
 use log::error;
 
@@ -21,6 +23,16 @@ impl From<AppConfig> for CH {
 }
 
 impl CH {
+    pub async fn insert(&self, table: String, block: clickhouse_rs::Block) -> anyhow::Result<()> {
+        match self.pool.get_handle().await {
+            Ok(mut client) => match client.insert(table, block).await {
+                Ok(_) => Ok(()),
+                Err(e) => Err(anyhow!("Failed to insert {:?}", e)),
+            },
+            Err(e) => Err(anyhow!("Failed to connect {:?}", e)),
+        }
+    }
+
     pub async fn query<DT: FromRow<DT> + ApiResource + Default + Clone>(
         &self,
         query: &String,

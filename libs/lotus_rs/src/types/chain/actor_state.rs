@@ -4,4 +4,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct ActorState {
     pub Balance: String,
+    pub Address: String,
 }

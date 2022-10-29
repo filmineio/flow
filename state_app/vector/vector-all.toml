@@ -22,31 +22,10 @@ type = "filter"
 inputs = ["parse"]
 condition = ".Message != null"
 
-[transforms.filter]
-type = "filter"
-inputs = ["parse"]
-condition = ".Message != null"
-
-[transforms.bls]
-type = "filter"
-inputs = ["parse"]
-condition = ".ActorId != null"
-
-[transforms.dedupe_bls]
-type = "dedupe"
-inputs = [ "bls" ]
-cache.num_events=100000
-fields.match=["ActorId", "Processed"]
-
 [transforms.bench]
 type = "filter"
 inputs = ["parse"]
 condition = '''.target_height != null'''
-
-[sinks.out]
-inputs = ["bench"]
-type = "console"
-encoding.codec = "json"
 
 [transforms.to_table]
 type = "remap"
@@ -72,6 +51,7 @@ source = '''
   d.Params =.Message.Params
   d.Timestamp = .BlockTimestamp
   d.Nonce = .Message.Nonce
+  d.Version = .Message.Version
   . = d
 '''
 
@@ -88,21 +68,6 @@ source = '''
   d.Miner = .Block.Miner
   . = d
 '''
-
-[sinks.clickhouse_bls]
-type = "clickhouse"
-inputs = [ "dedupe_bls" ]
-database = "flow"
-endpoint = "http://localhost:8123"
-table = "actor_bls"
-compression = "gzip"
-auth.strategy="basic"
-auth.user="default"
-auth.password="flow_p"
-buffer.when_full="block"
-buffer.type="disk"
-buffer.max_size=500000000
-batch.max_events=10
 
 [sinks.clickhouse_blk]
 type = "clickhouse"
@@ -135,3 +100,60 @@ buffer.type="disk"
 buffer.max_size=500000000
 batch.max_events=10
 
+
+[transforms.kafka_wasm_contract_filter]
+type = "filter"
+inputs = ["to_table"]
+condition = '''(.From == "t01" && .SubCallOf != null && .Method == 1)'''
+
+[transforms.dedupe_kafka_wasm_contract_filter]
+type = "dedupe"
+inputs = [ "kafka_wasm_contract_filter" ]
+cache.num_events=100000
+fields.match=["Cid"]
+
+[transforms.kafka_wasm_contract]
+type = "remap"
+inputs = ["dedupe_kafka_wasm_contract_filter"]
+source = '''
+  d = .
+  d.ContractType = "WASM"
+  . = d
+'''
+
+[transforms.kafka_evm_contract_filter]
+type = "filter"
+inputs = ["to_table"]
+condition = '''(.To == "t010" && .SubCallOf == null && includes([2,3], .Method))'''
+
+[transforms.dedupe_kafka_evm_contract_filter]
+type = "dedupe"
+inputs = [ "kafka_evm_contract_filter" ]
+cache.num_events=100000
+fields.match=["Cid"]
+
+[transforms.kafka_evm_contract]
+type = "remap"
+inputs = ["dedupe_kafka_evm_contract_filter"]
+source = '''
+  d = .
+  d.ContractType = "EFVM"
+  d.Params = ""
+  . = d
+'''
+
+[sinks.kafka_contract_out]
+type = "kafka"
+inputs = [ "kafka_wasm_contract", "kafka_evm_contract" ]
+bootstrap_servers = "127.0.0.1:9092"
+key_field="Cid"
+topic = "new_contract"
+compression = "none"
+
+[sinks.kafka_contract_out.encoding]
+codec = "json"
+
+[sinks.out]
+inputs = ["bench", "kafka_wasm_contract", "kafka_evm_contract"]
+type = "console"
+encoding.codec = "json"

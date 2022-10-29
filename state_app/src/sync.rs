@@ -37,8 +37,14 @@ pub async fn sync(
             msg.set_block_timestamp(blk_timestamp.clone());
             println!("{}", json!(&msg));
 
-            block_actors.insert(msg.Addresses.RobustFrom);
-            block_actors.insert(msg.Addresses.RobustTo);
+            if msg.Value.unwrap_or(0) > 0 {
+                if msg.Addresses.RobustFrom.is_some() {
+                    block_actors.insert(msg.Addresses.RobustFrom);
+                }
+                if msg.Addresses.RobustTo.is_some() {
+                    block_actors.insert(msg.Addresses.RobustTo);
+                }
+            }
         }
 
         for actor_id in block_actors.into_iter().flatten() {

@@ -27,6 +27,7 @@ CREATE TABLE flow.messages (
   `Value` Int64,
   `Timestamp` Int64,
   `Nonce` Int64
+  `Version` Int64
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
   Cid
 )
@@ -34,74 +35,25 @@ ORDER BY
     Cid
 ```
 
-## Create Actor BLS Table (The Latest balance on chain)
-
+## Create Contracts Table
 ```sql
-CREATE TABLE flow.actor_bls (
-  `Height` Int64,
-  `Block` String,
-  `ActorId` String,
-  `Balance` Int64,
-  `Processed` Int64
-) ENGINE = ReplacingMergeTree PRIMARY KEY (ActorId, Processed, Block)
-ORDER BY
-  (ActorId, Processed, Block)
-```
-
-## Create Contracts View
-```sql
-CREATE MATERIALIZED VIEW flow.contracts (
+CREATE TABLE flow.contracts (
   `Cid` String,
-  `ContractId` String,
-  `ContractRobustAddress` String,
-  `OwnerId` String,
-  `OwnerRobustAddress` String,
-  `Bytecode` String
-) ENGINE = ReplacingMergeTree PRIMARY KEY (ContractId, ContractRobustAddress)
+`ContractId` String,
+`ContractAddress` String,
+`ContractActorAddress` String,
+`OwnerId` String,
+`OwnerAddress` String,
+`Compiler` String,
+`ContractType` String,
+`EthAddress` String
+) ENGINE = ReplacingMergeTree PRIMARY KEY (
+  ContractId
+)
 ORDER BY
-  (ContractId, ContractRobustAddress) AS
-SELECT
-  tr.Cid AS Cid,
-  tr.To AS ContractId,
-  tr.RobustTo AS ContractRobustAddress,
-  msg.From AS OwnerId,
-  msg.RobustFrom AS OwnerRobustAddress,
-  msg.Params as Bytecode
-FROM
-  flow.messages AS tr
-  INNER JOIN flow.messages AS msg ON tr.SubCallOf = msg.Cid
-WHERE
-  (tr.From = 't01')
-  AND (tr.Method = 1)
-  AND (tr.SubCallOf != '')
-GROUP BY
-  (
-    Cid,
-    ContractId,
-    ContractRobustAddress,
-    OwnerId,
-    OwnerRobustAddress,
-    Bytecode
-  )
+    ContractId
 ```
 
-## Create SubCalls Count View
-```sql
-CREATE MATERIALIZED VIEW flow.sub_calls (
-  `MessageCid` String,
-  `SubCallsCount` Int64
-) ENGINE = ReplacingMergeTree
-ORDER BY
-  MessageCid AS
-SELECT
-  m.Cid AS MessageCid,
-  count(s.Cid) as SubCallsCount
-FROM flow.messages as m
-INNER JOIN (
-    select Cid, SubCallOf from flow.messages GROUP BY (SubCallOf, Cid)
-) as s on s.SubCallOf = m.Cid
-GROUP BY (m.Cid)
-```
 
 ## Create contract_bls Table
 ```sql

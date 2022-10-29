@@ -129,4 +129,14 @@ impl LotusClient {
 
         Ok(res.result)
     }
+
+    pub async fn chain_get_message(&self, message_cid: CID) -> Result<Message> {
+        let res: Rs<Message> = self
+            .send::<Rs<ActorState>>("ChainGetMessage".to_string(), vec![json!(message_cid)])
+            .await?
+            .json()
+            .await?;
+
+        Ok(res.result)
+    }
 }
