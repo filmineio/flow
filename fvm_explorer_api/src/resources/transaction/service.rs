@@ -6,15 +6,23 @@ use actix_web::{web, HttpResponse, Responder};
 use serde_json::Value::Null;
 
 pub async fn list(q: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
-    let query = q.into_inner();
+    let mut query = q.into_inner();
+    let mut limit = query.limit.clone().unwrap_or(1);
+    let mut skip = query.skip.clone().unwrap_or(1);
+
+    if let Some(v) = query.search_by.clone() {
+        if v == "contract" {
+            query.limit = Some(2000);
+            query.skip = Some(0);
+        }
+    }
     if let Some(mut res) = ctx
         .ch_pool
         .query::<Transaction>(&format!(
-                    "{} {}",
-                    QueryUtils::prepare_query::<Transaction>(vec!["*"]),
-                    QueryUtils::get_query_filters::<Transaction>(query.clone())
-                ),
-        )
+            "{} {}",
+            QueryUtils::prepare_query::<Transaction>(vec!["*"]),
+            QueryUtils::get_query_filters::<Transaction>(query.clone())
+        ))
         .await
     {
         if let Some(v) = query.search_by.clone() {
@@ -35,6 +43,15 @@ pub async fn list(q: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Respo
                     })
                     .collect();
 
+                let rows_len: i64 = res.rows.len().try_into().unwrap_or(0);
+
+                skip = skip.min(rows_len);
+                limit = limit.min(rows_len - skip);
+
+                res.rows = res
+                    .rows
+                    .drain(skip.try_into().unwrap_or(0)..(skip + limit).try_into().unwrap_or(1))
+                    .collect();
                 return HttpResponse::Ok().json(res);
             }
         }

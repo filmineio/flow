@@ -14,8 +14,8 @@ impl FromRow<Block> for Block {
     fn from_row(row: Row<Complex>) -> anyhow::Result<Self> {
         let mut c = Self::default();
 
-        c.cid = row.get("cid")?;
-        c.block = row.get("block")?;
+        c.cid = row.get("Cid")?;
+        c.block = row.get("Block")?;
 
         Ok(c)
     }
@@ -27,7 +27,7 @@ impl ApiResource for Block {
     }
 
     fn default_order_by() -> String {
-        return "timestamp".to_string();
+        return "Timestamp".to_string();
     }
 
     fn default_search_by() -> String {
@@ -36,13 +36,13 @@ impl ApiResource for Block {
 
     fn match_order_by(order_by: String) -> String {
         match order_by.to_lowercase().as_str() {
-            _ => "timestamp".to_string(),
+            _ => "Cid".to_string(),
         }
     }
 
     fn match_search_by(search: String) -> Vec<String> {
         match search.to_lowercase().as_str() {
-            _ => vec!["cid".to_string()],
+            _ => vec!["Cid".to_string()],
         }
     }
 }

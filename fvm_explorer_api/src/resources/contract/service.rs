@@ -4,32 +4,11 @@ use crate::shared::utils::query_utils::QueryUtils;
 use crate::AppCtx;
 use actix_web::{web, HttpResponse, Responder};
 
-/*
-LEFT JOIN (
-    SELECT
-      Cid,
-      RobustTo,
-      count(Value) AS Num
-    FROM
-      flow.messages
-    GROUP BY (Cid, RobustTo)
-  ) AS i ON i.RobustTo = ContractId
-  LEFT JOIN (
-    SELECT
-    Cid,
-    RobustFrom,
-      count(Value) AS Num
-    FROM
-      flow.messages
-    GROUP BY (Cid, RobustFrom)
-  ) AS o ON o.RobustFrom = ContractId
- */
-
 pub async fn list(query: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
     if let Some(res) = ctx
         .ch_pool
         .query::<Contract>(&format!(
-            "{} left join (select Cid, MessageRctExitCode, From, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode = 0 GROUP BY (Cid, From, MessageRctExitCode)) t_ok_o on t_ok_o.From = ContractId left join (select Cid, MessageRctExitCode, To, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode = 0 GROUP BY (Cid, To, MessageRctExitCode)) t_ok_in on t_ok_in.To = ContractId left join (select Cid, MessageRctExitCode, From, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode != 0 GROUP BY (Cid, From, MessageRctExitCode)) t_rv_o on t_rv_o.From = ContractId left join (select Cid, MessageRctExitCode, To, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode != 0 GROUP BY (Cid, To, MessageRctExitCode)) t_rv_in on t_rv_in.To = ContractId {}",
+            "{} left join (select MessageRctExitCode, From, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode = 0 GROUP BY (From, MessageRctExitCode)) t_ok_o on t_ok_o.From = ContractId left join (select MessageRctExitCode, To, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode = 0 GROUP BY (To, MessageRctExitCode)) t_ok_in on t_ok_in.To = ContractId left join (select MessageRctExitCode, From, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode != 0 GROUP BY (From, MessageRctExitCode)) t_rv_o on t_rv_o.From = ContractId left join (select MessageRctExitCode, To, count(MessageRctExitCode) as C from flow.messages where MessageRctExitCode != 0 GROUP BY (To, MessageRctExitCode)) t_rv_in on t_rv_in.To = ContractId {}",
             QueryUtils::prepare_query::<Contract>(vec![
                         "OwnerAddress",
         "ContractAddress",
