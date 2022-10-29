@@ -35,6 +35,7 @@ pub struct Transaction {
     pub timestamp: i64,
     pub nonce: i64,
     pub state_transition: Option<StateTransition>,
+    pub version: Option<i64>,
 }
 
 impl Transaction {
@@ -66,25 +67,25 @@ impl FromRow<Transaction> for Transaction {
     fn from_row(row: Row<Complex>) -> anyhow::Result<Self> {
         let mut c = Self::default();
 
-        c.cid = row.get("cid")?;
-        c.height = row.get("height")?;
-        c.block = row.get("block")?;
-        c.message_rct_exit_code = row.get("message_rct_exit_code")?;
-        c.message_rct_return = row.get("message_rct_return")?;
-        c.message_rct_gas_used = row.get("message_rct_gas_used")?;
-        c.sub_call_of = row.get("sub_call_of")?;
-        c.from = row.get("from")?;
-        c.to = row.get("to")?;
-        c.robust_from = row.get("robust_from")?;
-        c.robust_to = row.get("robust_to")?;
-        c.gas_limit = row.get("gas_limit")?;
-        c.gas_fee_cap = row.get("gas_fee_cap")?;
-        c.gas_premium = row.get("gas_premium")?;
-        c.method = row.get("method")?;
-        c.params = row.get("params")?;
-        c.value = row.get("value")?;
-        c.timestamp = row.get("timestamp")?;
-        c.nonce = row.get("nonce")?;
+        c.cid = row.get("Cid")?;
+        c.height = row.get("Height")?;
+        c.block = row.get("Block")?;
+        c.message_rct_exit_code = row.get("MessageRctExitCode")?;
+        c.message_rct_return = row.get("MessageRctReturn")?;
+        c.message_rct_gas_used = row.get("MessageRctGasUsed")?;
+        c.sub_call_of = row.get("SubCallOf")?;
+        c.from = row.get("From")?;
+        c.to = row.get("To")?;
+        c.robust_from = row.get("RobustFrom")?;
+        c.robust_to = row.get("RobustTo")?;
+        c.gas_limit = row.get("GasLimit")?;
+        c.gas_fee_cap = row.get("GasFeeCap")?;
+        c.gas_premium = row.get("GasPremium")?;
+        c.method = row.get("Method")?;
+        c.params = row.get("Params")?;
+        c.value = row.get("Value")?;
+        c.timestamp = row.get("Timestamp")?;
+        c.nonce = row.get("Nonce")?;
 
         c.state_transition = None;
 
@@ -107,22 +108,22 @@ impl ApiResource for Transaction {
 
     fn match_order_by(order_by: String) -> String {
         match order_by.to_lowercase().as_str() {
-            "height" => "height".to_string(),
-            _ => "timestamp".to_string(),
+            "height" => "Height".to_string(),
+            _ => "Timestamp".to_string(),
         }
     }
 
     fn match_search_by(search: String) -> Vec<String> {
         match search.to_lowercase().as_str() {
             "contract" => vec![
-                "from".to_string(),
-                "to".to_string(),
-                "robust_from".to_string(),
-                "robust_to".to_string(),
+                "From".to_string(),
+                "To".to_string(),
+                "RobustFrom".to_string(),
+                "RobustTo".to_string(),
             ],
-            "subcalls" => vec!["sub_call_of".to_string()],
-            "block" => vec!["block".to_string()],
-            _ => vec!["cid".to_string()],
+            "subcalls" => vec!["SubCallOf".to_string()],
+            "block" => vec!["Block".to_string()],
+            _ => vec!["Cid".to_string()],
         }
     }
 }
