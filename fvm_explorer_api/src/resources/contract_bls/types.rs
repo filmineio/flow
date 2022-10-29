@@ -6,17 +6,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractBls {
-    pub balance: i64,
     pub contract_id: String,
-    pub transaction_count: i64,
+    pub ok_transaction_count: u64,
+    pub reverted_transaction_count: u64,
 }
 
 impl FromRow<ContractBls> for ContractBls {
     fn from_row(row: Row<Complex>) -> anyhow::Result<ContractBls> {
         let mut c = Self::default();
-        c.balance = row.get("Balance")?;
         c.contract_id = row.get("ContractId")?;
-        c.transaction_count = row.get("TransactionCount")?;
+        c.ok_transaction_count = row.get("TransactionCountOk")?;
+        c.reverted_transaction_count = row.get("TransactionCountReverted")?;
 
         Ok(c)
     }
@@ -24,11 +24,11 @@ impl FromRow<ContractBls> for ContractBls {
 
 impl ApiResource for ContractBls {
     fn get_table() -> String {
-        return "flow.contracts_bls".to_string();
+        return "flow.contracts".to_string();
     }
 
     fn default_order_by() -> String {
-        return "TransactionCount".to_string();
+        return "ContractId".to_string();
     }
 
     fn default_search_by() -> String {
@@ -36,7 +36,7 @@ impl ApiResource for ContractBls {
     }
 
     fn match_order_by(_order_by: String) -> String {
-        "TransactionCount".to_string()
+        "ContractId".to_string()
     }
 
     fn match_search_by(_search: String) -> Vec<String> {

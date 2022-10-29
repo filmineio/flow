@@ -55,16 +55,16 @@ impl From<Project> for FullProject {
 #[serde(rename_all = "camelCase")]
 pub struct ProjectContract {
     pub contract_id: String,
-    pub balance: i64,
-    pub transaction_count: i64,
+    pub ok_transaction_count: u64,
+    pub reverted_transaction_count: u64,
 }
 
 impl From<String> for ProjectContract {
     fn from(value: String) -> Self {
         Self {
             contract_id: value,
-            balance: 0,
-            transaction_count: 0,
+            ok_transaction_count: 0,
+            reverted_transaction_count: 0,
         }
     }
 }
@@ -78,7 +78,7 @@ impl ProjectContract {
             .find(|v| v.contract_id == self.contract_id)
             .unwrap_or(&binding);
 
-        self.balance = bls.balance;
-        self.transaction_count = bls.transaction_count;
+        self.ok_transaction_count = bls.ok_transaction_count;
+        self.reverted_transaction_count = bls.reverted_transaction_count;
     }
 }
