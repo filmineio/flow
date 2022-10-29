@@ -17,7 +17,7 @@ use tokio::time::{sleep, Instant};
 async fn main() -> Result<()> {
     let client = LotusClient::init(LotusConfig::from_env());
 
-    let mut current_height = 6265;
+    let mut current_height = 0;
     let mut map: HashMap<String, Option<String>> = HashMap::new();
     loop {
         let height = client.chain_head().await?.Height;
@@ -36,8 +36,8 @@ async fn main() -> Result<()> {
             } else {
                 current_height += 1;
             }
-            sleep(Duration::new(0, 0)).await;
+            sleep(Duration::new(0, 3000)).await;
         }
-        sleep(Duration::new(30, 0)).await;
+        sleep(Duration::new(35, 0)).await;
     }
 }

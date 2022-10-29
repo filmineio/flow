@@ -26,7 +26,7 @@ CREATE TABLE flow.messages (
   `Params` String,
   `Value` Int64,
   `Timestamp` Int64,
-  `Nonce` Int64
+  `Nonce` Int64,
   `Version` Int64
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
   Cid
@@ -54,47 +54,6 @@ ORDER BY
     ContractId
 ```
 
-
-## Create contract_bls Table
-```sql
-CREATE MATERIALIZED VIEW flow.contracts_bls (
-  `ContractId` String,
-  `TransactionCount` Int64,
-  `Balance` Int64
-) ENGINE = ReplacingMergeTree PRIMARY KEY (ContractId)
-ORDER BY
-  (ContractId) AS
-SELECT
-  t.ActorId as ContractId,
-  t.Balance as Balance,
-  i.Num + o.Num AS TransactionCount
-FROM
-  flow.actor_bls AS t
-  LEFT JOIN (
-    SELECT
-      Cid,
-      RobustTo,
-      count(Value) AS Num  
-    FROM
-      flow.messages
-    GROUP BY (Cid, RobustTo)
-  ) AS i ON i.RobustTo = ContractId
-  LEFT JOIN (
-    SELECT
-    Cid,
-    RobustFrom,
-      count(Value) AS Num
-    FROM
-      flow.messages
-    GROUP BY (Cid, RobustFrom)
-  ) AS o ON o.RobustFrom = ContractId
-GROUP BY
-  (
-    ContractId,
-    TransactionCount,
-    Balance
-  )
-```
 
 ## Create Block Table
 ```sql
