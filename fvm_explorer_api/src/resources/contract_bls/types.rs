@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ContractBls {
+pub struct ProjectContract {
     pub contract_id: String,
     pub ok_transaction_count: u64,
     pub reverted_transaction_count: u64,
 }
 
-impl FromRow<ContractBls> for ContractBls {
-    fn from_row(row: Row<Complex>) -> anyhow::Result<ContractBls> {
+impl FromRow<ProjectContract> for ProjectContract {
+    fn from_row(row: Row<Complex>) -> anyhow::Result<ProjectContract> {
         let mut c = Self::default();
         c.contract_id = row.get("ContractAddress")?;
         c.ok_transaction_count = row.get("TransactionCountOk")?;
@@ -22,7 +22,7 @@ impl FromRow<ContractBls> for ContractBls {
     }
 }
 
-impl ApiResource for ContractBls {
+impl ApiResource for ProjectContract {
     fn get_table() -> String {
         return "flow.contracts".to_string();
     }
