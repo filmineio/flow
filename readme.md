@@ -22,6 +22,27 @@
     - Params + Return deserializer (based on source code)
     - Contract interaction (method calling from API)
   - Bytecode analyzer and metadata extract -- Abandoned due to low value
+- Containerize apps
+  - State Producer app Dockerfile
+  - New Contract Consumer app Dockerfile
+  - Fvm Explorer API app Docker File
+- Lotus docker file
+  - https://github.com/jimpick/lotus-fvm-localnet
+
+## Notes about Testnet
+Currently, we are building on Wallaby testnet, for setup, follow instructions
+### Setup
+- Follow instructions from https://kb.factor8.io/en/docs/fil/wallabynet
+### Network reset
+#### Lotus
+#### steps:
+1. stop lotus daemon
+2. rm lotus repo
+3. rm ~/.lotus
+4. clone repo (checkout experimental)
+5. make wallaby
+6. make install-daemon-service
+7. systemctl start lotus-daemon
 
 ## Usage
 ### State App
@@ -65,6 +86,13 @@ cargo run --bin contract_listener
 ```shell
 cargo run --bin fvm_explorer_api
 ```
+
+## Docker
+There are two docker-compose files 
+ ### Root
+- Main docker-compose file used for project min dependencies
+ ### Fvm Explorer API
+- docker compose with API dependencies
 
 ## Overall Architecture
 
