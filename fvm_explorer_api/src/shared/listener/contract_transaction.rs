@@ -1,4 +1,4 @@
-use crate::shared::types::contract_type::ContractType;
+use crate::shared::listener::contract_type::ContractType;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

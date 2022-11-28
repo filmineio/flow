@@ -2,11 +2,11 @@ mod shared;
 
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
+use crate::shared::listener::contract::Contract;
+use crate::shared::listener::contract_transaction::ContractTransaction;
+use crate::shared::listener::contract_type::ContractType;
 use crate::shared::logger::logger::{Init, Logger};
 use crate::shared::types::builtin_actors::eam::EAMReturn;
-use crate::shared::types::contract::Contract;
-use crate::shared::types::contract_transaction::ContractTransaction;
-use crate::shared::types::contract_type::ContractType;
 use anyhow::{anyhow, Result};
 use fvm_ipld_encoding::RawBytes;
 use fvm_shared::address::{Address, Network};

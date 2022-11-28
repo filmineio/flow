@@ -48,12 +48,14 @@ CREATE TABLE flow.contracts (
     `OwnerAddress` String,
     `Compiler` String,
     `ContractType` String,
-    `EthAddress` String
+    `EthAddress` String,
+    `Bytecode` String
 ) ENGINE = ReplacingMergeTree PRIMARY KEY (
   ContractId
 )
 ORDER BY
     ContractId
+
 ```
 
 ## Create Events Table 

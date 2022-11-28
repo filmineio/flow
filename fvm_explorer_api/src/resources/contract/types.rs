@@ -48,6 +48,7 @@ impl FromRow<Contract> for Contract {
         c.contract_type = row.get("ContractType")?;
         c.eth_address = row.get("EthAddress")?;
         c.contract_actor_address = row.get("ContractActorAddress")?;
+
         Ok(c)
     }
 }
@@ -58,15 +59,15 @@ impl ApiResource for ContractBytecode {
     }
 
     fn default_order_by() -> String {
-        return "".to_string();
+        return "ContractId".to_string();
     }
 
     fn default_search_by() -> String {
-        return "".to_string();
+        return "ContractAddress".to_string();
     }
 
     fn match_order_by(_order_by: String) -> String {
-        "".to_string()
+        "ContractId".to_string()
     }
 
     fn match_search_by(_search: String) -> Vec<String> {

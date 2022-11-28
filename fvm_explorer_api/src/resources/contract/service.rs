@@ -38,12 +38,20 @@ pub async fn get_bytecode(
 ) -> impl Responder {
     let mut query = ApiQuery::default();
     query.search = Some(contract_path_info.into_inner().contract_address);
+    query.limit = Some(1);
+    query.skip = Some(0);
 
     if let Some(res) = ctx
         .ch_pool
         .query::<ContractBytecode>(&format!(
             "{} {}",
-            QueryUtils::prepare_query::<ContractBytecode>(vec!["Bytecode"]),
+            QueryUtils::prepare_query::<ContractBytecode>(vec![
+                "Bytecode",
+                "ContractAddress",
+                "ContractId",
+                "EthAddress",
+                "ContractActorAddress"
+            ]),
             QueryUtils::get_query_filters::<ContractBytecode>(query)
         ))
         .await
@@ -53,4 +61,12 @@ pub async fn get_bytecode(
 
     let default: Vec<Contract> = vec![];
     HttpResponse::Ok().json(default)
+}
+
+pub async fn upload() -> impl Responder {
+    HttpResponse::Ok().body("")
+}
+
+pub async fn status() -> impl Responder {
+    HttpResponse::Ok().body("")
 }

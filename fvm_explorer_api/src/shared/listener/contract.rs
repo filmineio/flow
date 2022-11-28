@@ -1,6 +1,6 @@
+use crate::shared::listener::contract_transaction::ContractTransaction;
+use crate::shared::listener::contract_type::ContractType;
 use crate::shared::types::builtin_actors::eam::EAMReturn;
-use crate::shared::types::contract_transaction::ContractTransaction;
-use crate::shared::types::contract_type::ContractType;
 use fvm_shared::address::Network;
 use lotus_rs::client::LotusClient;
 use lotus_rs::types::chain::cid::str2cid;
@@ -18,6 +18,7 @@ pub struct Contract {
     compiler: Option<String>,
     contract_type: ContractType,
     eth_address: Option<String>,
+    bytecode: Option<String>,
 }
 
 impl TryFrom<ContractTransaction> for Contract {
@@ -33,6 +34,7 @@ impl TryFrom<ContractTransaction> for Contract {
             compiler: Some("unknown".to_string()),
             contract_type: value.contract_type,
             eth_address: None,
+            bytecode: None,
         };
 
         match c.contract_type {
@@ -44,6 +46,7 @@ impl TryFrom<ContractTransaction> for Contract {
             ContractType::EFVM => {
                 c.owner_id = value.from;
                 c.owner_address = value.robust_from;
+                c.bytecode = value.params
             }
         }
 
@@ -95,6 +98,7 @@ impl Contract {
                     .state_lookup_id(starter_message.From.clone(), None)
                     .await?,
             );
+            self.bytecode = starter_message.Params
         }
 
         Ok(())
@@ -125,6 +129,10 @@ impl Contract {
             .column(
                 "OwnerAddress",
                 vec![self.owner_address.clone().unwrap_or("".to_string())],
+            )
+            .column(
+                "Bytecode",
+                vec![self.bytecode.clone().unwrap_or("".to_string())],
             )
             .column(
                 "Compiler",

@@ -172,7 +172,6 @@ inputs = ["dedupe_kafka_evm_contract_filter"]
 source = '''
   d = .
   d.ContractType = "EFVM"
-  d.Params = ""
   . = d
 '''
 
