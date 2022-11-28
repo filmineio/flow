@@ -1,7 +1,8 @@
 use lotus_rs::client::LotusClient;
 use lotus_rs::types::chain::block::Block;
-use lotus_rs::types::chain::cid::CID;
+use lotus_rs::types::chain::cid::{cid2str, CID};
 use lotus_rs::types::chain::message::Message;
+use lotus_rs::types::state::event::{Entry, Flags};
 use lotus_rs::types::state::execution_trace::ExecutionTrace;
 use lotus_rs::types::state::gas_charge::GasCharge;
 use lotus_rs::types::state::message_rct::MessageRct;
@@ -16,6 +17,7 @@ pub struct FlowMessageRct {
     pub ExitCode: Option<i8>,
     pub Return: Option<String>,
     pub GasUsed: Option<i64>,
+    pub EventsRoot: Option<String>,
 }
 
 impl From<MessageRct> for FlowMessageRct {
@@ -24,6 +26,10 @@ impl From<MessageRct> for FlowMessageRct {
             Return: m.Return,
             ExitCode: m.ExitCode,
             GasUsed: m.GasUsed,
+            EventsRoot: match m.EventsRoot {
+                Some(v) => cid2str(v),
+                _ => None,
+            },
         }
     }
 }
@@ -72,6 +78,7 @@ pub struct FlowMessage {
     pub Addresses: Addresses,
     pub Value: Option<i64>,
     pub BlockTimestamp: Option<String>,
+    pub NumberOfEvents: i64,
 }
 
 impl From<Message> for Addresses {
@@ -159,6 +166,7 @@ impl From<ExecutionTrace> for FlowMessage {
             Addresses: Addresses::from(exec_trace.Msg),
             Value: Some(val),
             BlockTimestamp: None,
+            NumberOfEvents: 0,
         }
     }
 }
@@ -171,6 +179,10 @@ impl FlowMessage {
 
     pub fn set_sub_calls_of(&mut self, msg_cid: CID) {
         self.SubCallOf = Some(msg_cid["/"].clone())
+    }
+
+    pub fn set_number_of_events(&mut self, n: i64) {
+        self.NumberOfEvents = n;
     }
 }
 
@@ -205,6 +217,31 @@ impl FlowMessage {
 
         if let Some(address) = &self.Addresses.RobustTo {
             self.Addresses.To = Addresses::resolve_addr(client, address, map).await;
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[allow(non_snake_case)]
+pub struct FlowEvent {
+    pub MessageCid: String,
+    pub EventsRoot: String,
+    pub Emitter: u64,
+    pub Order: i32,
+    pub Entries: Vec<Entry>,
+}
+
+#[allow(non_snake_case)]
+impl From<(String, String, u64, i32, Vec<Entry>)> for FlowEvent {
+    fn from(
+        (MessageCid, EventsRoot, Emitter, Order, Entries): (String, String, u64, i32, Vec<Entry>),
+    ) -> Self {
+        FlowEvent {
+            MessageCid,
+            EventsRoot,
+            Emitter,
+            Order,
+            Entries,
         }
     }
 }

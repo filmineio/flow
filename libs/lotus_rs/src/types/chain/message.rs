@@ -16,4 +16,3 @@ pub struct Message {
     pub Params: Option<String>,
     pub CID: CID,
 }
-

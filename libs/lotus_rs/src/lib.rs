@@ -9,7 +9,9 @@ use crate::types::chain::actor_state::ActorState;
 use crate::types::chain::chain_head::ChainHead;
 use crate::types::chain::cid::CID;
 use crate::types::chain::message::Message;
+use crate::types::state::event::StampedEvent;
 use crate::types::state::state::State;
+
 use anyhow::Result;
 use serde_json::Value::Null;
 use serde_json::{json, Value};
@@ -133,6 +135,16 @@ impl LotusClient {
     pub async fn chain_get_message(&self, message_cid: CID) -> Result<Message> {
         let res: Rs<Message> = self
             .send::<Rs<ActorState>>("ChainGetMessage".to_string(), vec![json!(message_cid)])
+            .await?
+            .json()
+            .await?;
+
+        Ok(res.result)
+    }
+
+    pub async fn chain_get_events(&self, events_root: CID) -> Result<Vec<StampedEvent>> {
+        let res: Rs<Vec<StampedEvent>> = self
+            .send::<Rs<Vec<StampedEvent>>>("ChainGetEvents".to_string(), vec![json!(events_root)])
             .await?
             .json()
             .await?;

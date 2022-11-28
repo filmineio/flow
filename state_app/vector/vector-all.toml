@@ -17,6 +17,11 @@ type = "filter"
 inputs = ["parse"]
 condition = ".Block != null && .ActorId == null"
 
+[transforms.event]
+type = "filter"
+inputs = ["parse"]
+condition = ".EventsRoot != null"
+
 [transforms.message]
 type = "filter"
 inputs = ["parse"]
@@ -38,6 +43,7 @@ source = '''
   d.MessageRctExitCode = .MessageRct.ExitCode
   d.MessageRctReturn = .MessageRct.Return
   d.MessageRctGasUsed = .MessageRct.GasUsed
+  d.MessageRctEventsRoot = .MessageRct.EventsRoot
   d.SubCallOf = .SubCallOf
   d.From = .Addresses.From
   d.RobustFrom = .Addresses.RobustFrom
@@ -52,9 +58,9 @@ source = '''
   d.Timestamp = .BlockTimestamp
   d.Nonce = .Message.Nonce
   d.Version = .Message.Version
+  d.NumberOfEvents = .NumberOfEvents
   . = d
 '''
-
 
 [transforms.to_blk_table]
 type = "remap"
@@ -66,6 +72,19 @@ source = '''
   d.Timestamp = .Block.Timestamp
   d.Height = .Block.Height
   d.Miner = .Block.Miner
+  . = d
+'''
+
+[transforms.to_events_table]
+type = "remap"
+inputs = ["event"]
+source = '''
+  d = {}
+  d.MessageCid = .MessageCid
+  d.Entries = encode_json(.Entries)
+  d.Emitter = .Emitter
+  d.Order = .Order
+  d.EventsRoot = .EventsRoot
   . = d
 '''
 
@@ -84,6 +103,21 @@ buffer.type="disk"
 buffer.max_size=500000000
 batch.max_events=10
 
+
+[sinks.clickhouse_events]
+type = "clickhouse"
+inputs = [ "to_events_table" ]
+database = "flow"
+endpoint = "http://localhost:8123"
+table = "events"
+compression = "gzip"
+auth.strategy="basic"
+auth.user="default"
+auth.password="flow_p"
+buffer.when_full="block"
+buffer.type="disk"
+buffer.max_size=500000000
+batch.max_events=10
 
 [sinks.clickhouse_message]
 type = "clickhouse"
@@ -154,6 +188,6 @@ compression = "none"
 codec = "json"
 
 [sinks.out]
-inputs = ["bench", "kafka_wasm_contract", "kafka_evm_contract"]
+inputs = ["bench", "kafka_wasm_contract", "kafka_evm_contract", "event"]
 type = "console"
 encoding.codec = "json"

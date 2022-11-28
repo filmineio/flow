@@ -1,17 +1,11 @@
-use crate::types::{ActorBls, FlowBlock};
+use crate::types::{FlowBlock, FlowEvent};
 use crate::FlowMessage;
 use anyhow::Result;
 use lotus_rs::client::LotusClient;
-use lotus_rs::types::chain::cid::{cid2str, CID};
+use lotus_rs::types::chain::cid::{str2cid, CID};
 
 use serde_json::json;
-use std::collections::{HashMap, HashSet};
-use std::str::FromStr;
-
-// TODO move to env
-const NATIVE_ACTORS: [&str; 9] = [
-    "t00", "t01", "t02", "t03", "t04", "t05", "t06", "t07", "t08",
-];
+use std::collections::HashMap;
 
 pub async fn sync(
     client: &LotusClient,
@@ -21,7 +15,6 @@ pub async fn sync(
     let mut msg_map: HashMap<String, bool> = HashMap::new();
     let head = client.chain_get_tip_set_by_height(new_height).await?;
     for (inx, blk) in head.Cids.iter().enumerate() {
-        let mut block_actors = HashSet::new();
         let mut blk_timestamp = "".to_string();
         if let Some(block) = head.Blocks.get(inx) {
             let mut f_blk = FlowBlock::from(block.clone());
@@ -35,36 +28,28 @@ pub async fn sync(
         for mut msg in msgs {
             msg.resolve_addresses(client, map).await;
             msg.set_block_timestamp(blk_timestamp.clone());
+
+            if let Some(rct) = &msg.MessageRct {
+                if let Some(ev_root) = &rct.EventsRoot {
+                    let v = client.chain_get_events(str2cid(ev_root.clone())).await;
+                    if let Ok(v) = v {
+                        let mut idx = 0;
+                        for e in &v {
+                            let ev = FlowEvent::from((
+                                msg.Cid.clone(),
+                                ev_root.clone(),
+                                e.emitter,
+                                idx,
+                                e.entries.clone(),
+                            ));
+                            idx += 1;
+                            println!("{}", json!(ev));
+                        }
+                        msg.set_number_of_events(v.len() as i64);
+                    }
+                }
+            }
             println!("{}", json!(&msg));
-
-            if msg.Value.unwrap_or(0) > 0 {
-                if msg.Addresses.RobustFrom.is_some() {
-                    block_actors.insert(msg.Addresses.RobustFrom);
-                }
-                if msg.Addresses.RobustTo.is_some() {
-                    block_actors.insert(msg.Addresses.RobustTo);
-                }
-            }
-        }
-
-        for actor_id in block_actors.into_iter().flatten() {
-            if !NATIVE_ACTORS.contains(&actor_id.as_str()) {
-                if let Ok(bls) = client
-                    .state_get_actor(actor_id.clone(), Some(blk.clone()))
-                    .await
-                {
-                    println!(
-                        "{}",
-                        json!(ActorBls {
-                            Height: new_height,
-                            Block: cid2str(blk.clone()),
-                            ActorId: actor_id,
-                            Balance: i64::from_str(&bls.Balance).unwrap_or(0),
-                            Processed: blk_timestamp.clone()
-                        })
-                    )
-                }
-            }
         }
     }
 
@@ -102,5 +87,3 @@ pub async fn get_block_state(
 
     Ok((msgs, msg_map))
 }
-
-use std::time::{SystemTime, UNIX_EPOCH};
