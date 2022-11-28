@@ -11,11 +11,10 @@ use crate::AppCtx;
 use actix_web::{web, HttpResponse, Responder};
 use log::warn;
 use serde_json::Value::Null;
-use std::fmt::{format, Debug};
 use tokio_postgres::Row;
 
 pub async fn list(query: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
-    let mut data = to_res(
+    let data = to_res(
         Project::find_all(&ctx.pg_pool, query.into_inner()).await,
         false,
     );

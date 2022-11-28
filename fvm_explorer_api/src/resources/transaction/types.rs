@@ -21,6 +21,7 @@ pub struct Transaction {
     pub message_rct_return: String,
     pub message_rct_exit_code: i64,
     pub message_rct_gas_used: i64,
+    pub message_rct_events_root: String,
     pub sub_call_of: String,
     pub from: String,
     pub to: String,
@@ -36,6 +37,7 @@ pub struct Transaction {
     pub nonce: i64,
     pub state_transition: Option<StateTransition>,
     pub version: Option<i64>,
+    pub number_of_events: i64,
 }
 
 impl Transaction {
@@ -75,6 +77,7 @@ impl FromRow<Transaction> for Transaction {
         c.message_rct_exit_code = row.get("MessageRctExitCode")?;
         c.message_rct_return = row.get("MessageRctReturn")?;
         c.message_rct_gas_used = row.get("MessageRctGasUsed")?;
+        c.message_rct_events_root = row.get("MessageRctEventsRoot")?;
         c.sub_call_of = row.get("SubCallOf")?;
         c.from = row.get("From")?;
         c.to = row.get("To")?;
@@ -88,8 +91,7 @@ impl FromRow<Transaction> for Transaction {
         c.value = row.get("Value")?;
         c.timestamp = row.get("Timestamp")?;
         c.nonce = row.get("Nonce")?;
-
-        c.state_transition = None;
+        c.number_of_events = row.get("NumberOfEvents")?;
 
         Ok(c)
     }

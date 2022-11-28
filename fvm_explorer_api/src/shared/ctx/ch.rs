@@ -1,11 +1,9 @@
-use crate::shared::api_helpers::api_query::ApiQuery;
 use crate::shared::traits::api_resource::ApiResource;
 use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use crate::shared::types::result_with_total::ResultWithTotal;
 use crate::shared::utils::query_utils::TOTAL_RES_KEY;
 use crate::AppConfig;
 use anyhow::anyhow;
-use clickhouse_rs::types::QueryResult;
 use clickhouse_rs::Pool;
 use log::error;
 

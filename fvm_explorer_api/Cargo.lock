@@ -1610,14 +1610,17 @@ name = "lotus_rs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bitflags",
  "derive_builder",
  "dotenv",
  "env_logger",
  "futures",
+ "fvm_ipld_encoding 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "reqwest",
  "serde",
  "serde_json",
+ "serde_tuple",
  "tokio",
  "uuid 1.2.1",
 ]

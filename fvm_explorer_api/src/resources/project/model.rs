@@ -2,12 +2,9 @@ use crate::resources::project::types::CreateProjectBody;
 use crate::shared::api_helpers::api_query::ApiQuery;
 use crate::shared::traits::api_resource::ApiResource;
 use crate::shared::utils::query_utils::QueryUtils;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use tokio_pg_mapper::FromTokioPostgresRow;
-use tokio_pg_mapper_derive::PostgresMapper;
 use tokio_postgres::Row;
 
 #[derive(Deserialize, Serialize, Default, Clone)]

@@ -5,6 +5,7 @@ mod shared;
 
 use crate::resources::block::controller::BlockController;
 use crate::resources::contract::controller::ContractController;
+use crate::resources::event::controller::EventController;
 use crate::resources::project::controller::ProjectsController;
 use crate::resources::transaction::controller::TransactionController;
 use crate::resources::user::controller::UserController;
@@ -42,6 +43,7 @@ async fn main() -> Result<()> {
             .configure(TransactionController::configure)
             .configure(BlockController::configure)
             .configure(ProjectsController::configure)
+            .configure(EventController::configure)
             .wrap(cors)
     })
     .bind(("127.0.0.1", port))?
