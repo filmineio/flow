@@ -51,7 +51,7 @@ impl ApiResource for Event {
 
     fn match_order_by(order_by: String) -> String {
         match order_by.to_lowercase().as_str() {
-            _ => "MessageCid".to_string(),
+            _ => "Order".to_string(),
         }
     }
 
