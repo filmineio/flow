@@ -1,14 +1,11 @@
-use anyhow::{Result};
-
+use anyhow::Result;
 
 use kafka::consumer::Consumer;
 
 use log::{error, info, warn};
 
-
 use std::time::Duration;
 use tokio::time::sleep;
-
 
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
@@ -16,7 +13,6 @@ use crate::shared::listener::contract::Contract;
 use crate::shared::listener::contract_transaction::ContractTransaction;
 use crate::shared::listener::contract_type::ContractType;
 use crate::shared::logger::logger::{Init, Logger};
-
 
 mod shared;
 
@@ -41,6 +37,7 @@ fn test_address(addr: fvm_shared::address::Address) -> String {
 async fn consume_messages(ctx: &AppCtx, config: &AppConfig) -> Result<()> {
     let mut con = Consumer::from_hosts(vec![config.broker.connection_string.clone()])
         .with_topic(config.broker.new_contract_topic.clone())
+        .with_fetch_max_bytes_per_partition(50000000)
         .create()?;
 
     loop {
