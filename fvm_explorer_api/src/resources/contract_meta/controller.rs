@@ -9,7 +9,7 @@ pub struct ContractMetaController {}
 impl ResourceService for ContractMetaController {
     fn configure(cfg: &mut web::ServiceConfig) {
         cfg.service(
-            web::resource("/contract-meta/{id}")
+            web::resource("/contract-meta/{contract_address}")
                 .route(web::get().to(read))
                 .route(web::post().to(create)),
         );

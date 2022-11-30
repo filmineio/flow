@@ -1,8 +1,11 @@
-use actix_web::{HttpResponse, Responder, web};
+use actix_web::{web, HttpResponse, Responder};
+use kafka::producer::AsBytes;
 
-use crate::AppCtx;
 use crate::shared::api_helpers::api_query::ApiQuery;
+use crate::shared::types::builtin_actors::eam::CreateParams;
+use crate::shared::types::result_with_total::ResultWithTotal;
 use crate::shared::utils::query_utils::QueryUtils;
+use crate::AppCtx;
 
 use super::types::{Contract, ContractBytecode, ContractBytecodePath};
 
@@ -38,12 +41,22 @@ pub async fn get_bytecode(
     contract_path_info: web::Path<ContractBytecodePath>,
     ctx: web::Data<AppCtx>,
 ) -> impl Responder {
+    let mut default: ResultWithTotal<ContractBytecode> = ResultWithTotal::default();
+
+    if let Some(bc) = read_bytecode(contract_path_info.into_inner().contract_address, &ctx).await {
+        default.total = 1;
+        default.rows = vec![ContractBytecode { bytecode: bc }];
+    };
+    HttpResponse::Ok().json(default)
+}
+
+pub async fn read_bytecode(address: String, ctx: &web::Data<AppCtx>) -> Option<String> {
     let mut query = ApiQuery::default();
-    query.search = Some(contract_path_info.into_inner().contract_address);
+    query.search = Some(address);
     query.limit = Some(1);
     query.skip = Some(0);
 
-    if let Some(res) = ctx
+    if let Some(mut res) = ctx
         .ch_pool
         .query::<ContractBytecode>(&format!(
             "{} {}",
@@ -58,17 +71,16 @@ pub async fn get_bytecode(
         ))
         .await
     {
-        return HttpResponse::Ok().json(res);
+        if res.total == 0 {
+            return None;
+        }
+
+        let bc = base64::decode(res.rows.last().unwrap().bytecode.clone()).unwrap();
+        let contract: CreateParams = serde_ipld_dagcbor::from_slice(bc.as_bytes()).unwrap();
+        let bc = hex::encode(contract.initcode.as_bytes());
+
+        return Some(bc);
     }
 
-    let default: Vec<Contract> = vec![];
-    HttpResponse::Ok().json(default)
-}
-
-pub async fn upload() -> impl Responder {
-    HttpResponse::Ok().body("")
-}
-
-pub async fn status() -> impl Responder {
-    HttpResponse::Ok().body("")
+    return None;
 }

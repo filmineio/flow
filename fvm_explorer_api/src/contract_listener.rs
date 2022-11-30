@@ -1,14 +1,14 @@
-use anyhow::{anyhow, Result};
-use fvm_ipld_encoding::RawBytes;
-use fvm_shared::address::{Address, Network};
+use anyhow::{Result};
+
+
 use kafka::consumer::Consumer;
-use kafka::producer::AsBytes;
+
 use log::{error, info, warn};
-use serde_json::json;
-use std::hash::Hash;
+
+
 use std::time::Duration;
 use tokio::time::sleep;
-use tokio_postgres::types::IsNull::No;
+
 
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
@@ -16,7 +16,7 @@ use crate::shared::listener::contract::Contract;
 use crate::shared::listener::contract_transaction::ContractTransaction;
 use crate::shared::listener::contract_type::ContractType;
 use crate::shared::logger::logger::{Init, Logger};
-use crate::shared::types::builtin_actors::eam::EAMReturn;
+
 
 mod shared;
 
@@ -54,7 +54,7 @@ async fn consume_messages(ctx: &AppCtx, config: &AppConfig) -> Result<()> {
             for m in ms.messages() {
                 let transaction: ContractTransaction = serde_json::from_slice(m.value)?;
                 if let Some(v) = transaction.message_rct_return.clone() {
-                    if v.len() == 0 {
+                    if v.is_empty() {
                         warn!(
                             "Ignoring Contract due to empty return {}",
                             transaction.cid.unwrap_or("".to_string())

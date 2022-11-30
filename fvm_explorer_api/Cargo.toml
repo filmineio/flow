@@ -14,7 +14,6 @@ serde = "1.0.144"
 serde_json = "1.0.85"
 tokio = { version = "1.19.2", features = ["full"] }
 env_logger = "0.9.0"
-uuid="1.1.2"
 derive_builder = "0.11.2"
 anyhow = "1.0.65"
 serde_ipld_dagcbor="0.2.2"
@@ -40,8 +39,13 @@ log = "0.4.17"
 sql_lexer="0.9.3"
 lotus_rs = { path = "../libs/lotus_rs"}
 actix-cors = "0.6.3"
-fvm_shared = { git = "https://github.com/filecoin-project/ref-fvm", branch = "master" }
 kafka = "0.9.0"
 cid = "0.8.6"
 base64 = "0.13.1"
-w3s="0.2.10"
+w3s={version = "0.2.10", features = ["zstd"]}
+actix-multipart = "0.4"
+futures-util = { version = "0.3.17", default-features = false, features = ["std"] }
+sanitize-filename = "0.4"
+uuid = { version = "1", features = ["v4"] }
+ethabi="18.0.0"
+fvm_shared = "3.0.0-alpha.12"

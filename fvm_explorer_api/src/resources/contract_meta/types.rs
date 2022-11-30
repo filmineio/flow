@@ -1,13 +1,12 @@
-use serde::{Deserialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Clone, Debug)]
 pub struct ContractMetaPath {
     pub contract_address: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Clone, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractMetadata {
     pub contract_address: String,
@@ -16,4 +15,6 @@ pub struct ContractMetadata {
     pub name: String,
     pub compiler_version: String,
     pub file_map: HashMap<String, String>,
+    pub sig_cid: String,
+    pub bin_cid: String,
 }

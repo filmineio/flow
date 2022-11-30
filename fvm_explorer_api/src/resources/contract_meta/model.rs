@@ -17,6 +17,8 @@ pub struct ContractMeta {
     pub contract_address: String,
     pub abi_cid: String,
     pub main_cid: String,
+    pub sig_cid: String,
+    pub bin_cid: String,
     pub name: String,
     pub compiler_version: String,
     // file_map is a cid -> file name map
@@ -30,6 +32,8 @@ impl From<Row> for ContractMeta {
             contract_address: value.get("contract_address"),
             abi_cid: value.get("abi_cid"),
             main_cid: value.get("main_cid"),
+            sig_cid: value.get("sig_cid"),
+            bin_cid: value.get("bin_cid"),
             name: value.get("name"),
             compiler_version: value.get("compiler_version"),
             file_map: serde_json::from_str(value.get("file_map")).unwrap(),

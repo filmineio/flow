@@ -23,7 +23,7 @@ impl QueryUtils {
                 query
                     .get_search_by::<DT>()
                     .iter()
-                    .map(move |v| format!("{} = '{}'", v, search))
+                    .map(move |v| format!("{} ILIKE '{}'", v, search))
                     .collect::<Vec<String>>()
                     .join(" OR ")
             )

@@ -23,7 +23,7 @@ pub struct Contract {
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractBytecode {
-    bytecode: String,
+    pub bytecode: String,
 }
 
 impl FromRow<ContractBytecode> for ContractBytecode {

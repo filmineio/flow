@@ -3,6 +3,7 @@ pub mod app_config;
 pub mod ctx;
 pub mod encoding;
 pub mod errors;
+pub mod files;
 pub mod listener;
 pub mod logger;
 pub mod traits;
