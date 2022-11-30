@@ -1,12 +1,14 @@
-use super::service::{create, list};
+use actix_web::web;
+
 use crate::resources::project::service::{add_contract, delete, remove_contract, update};
 use crate::ResourceService;
-use actix_web::web;
+
+use super::service::{create, list};
 
 pub struct ProjectsController {}
 
 impl ResourceService for ProjectsController {
-    fn configure(cfg: &mut web::ServiceConfig) -> () {
+    fn configure(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::resource("/projects")
                 .route(web::get().to(list))

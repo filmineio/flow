@@ -1,10 +1,11 @@
-use crate::shared::listener::contract_transaction::ContractTransaction;
-use crate::shared::listener::contract_type::ContractType;
-use crate::shared::types::builtin_actors::eam::EAMReturn;
 use fvm_shared::address::Network;
 use lotus_rs::client::LotusClient;
 use lotus_rs::types::chain::cid::str2cid;
 use serde::{Deserialize, Serialize};
+
+use crate::shared::listener::contract_transaction::ContractTransaction;
+use crate::shared::listener::contract_type::ContractType;
+use crate::shared::types::builtin_actors::eam::EAMReturn;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -50,7 +51,7 @@ impl TryFrom<ContractTransaction> for Contract {
             }
         }
 
-        return Ok(c);
+        Ok(c)
     }
 }
 

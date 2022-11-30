@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 use crate::resources::contract_bls::types::ContractBls;
 use crate::resources::project::model::Project;
-use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,7 +1,8 @@
-use crate::shared::traits::api_resource::ApiResource;
-use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use clickhouse_rs::types::{Complex, Row};
 use serde::{Deserialize, Serialize};
+
+use crate::shared::traits::api_resource::ApiResource;
+use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -23,15 +24,15 @@ impl FromRow<Block> for Block {
 
 impl ApiResource for Block {
     fn get_table() -> String {
-        return "flow.block".to_string();
+        "flow.block".to_string()
     }
 
     fn default_order_by() -> String {
-        return "Timestamp".to_string();
+        "Timestamp".to_string()
     }
 
     fn default_search_by() -> String {
-        return "".to_string();
+        "".to_string()
     }
 
     fn match_order_by(order_by: String) -> String {

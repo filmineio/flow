@@ -1,14 +1,16 @@
-use super::types::{DecodeParamsBody, Transaction};
-use crate::shared::api_helpers::api_query::ApiQuery;
-use crate::shared::utils::query_utils::QueryUtils;
-use crate::AppCtx;
 use actix_web::{web, HttpResponse, Responder};
 use serde_json::Value::Null;
 
+use crate::shared::api_helpers::api_query::ApiQuery;
+use crate::shared::utils::query_utils::QueryUtils;
+use crate::AppCtx;
+
+use super::types::{DecodeParamsBody, Transaction};
+
 pub async fn list(q: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
     let mut query = q.into_inner();
-    let mut limit = query.limit.clone().unwrap_or(1);
-    let mut skip = query.skip.clone().unwrap_or(1);
+    let mut limit = query.limit.unwrap_or(1);
+    let mut skip = query.skip.unwrap_or(1);
 
     if let Some(v) = query.search_by.clone() {
         if v == "contract" {
@@ -69,10 +71,10 @@ pub async fn decode_params(
 ) -> impl Responder {
     if let Ok(res) = ctx
         .lotus_client
-        .state_decode_params(info.to.clone(), info.method.clone(), info.params.clone())
+        .state_decode_params(info.to.clone(), info.method, info.params.clone())
         .await
     {
         return HttpResponse::Ok().json(res);
     }
-    return HttpResponse::Ok().json(Null);
+    HttpResponse::Ok().json(Null)
 }

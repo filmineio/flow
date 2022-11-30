@@ -34,7 +34,7 @@ impl QueryUtils {
             query_string,
             query.get_order_by::<DT>(),
             &query.get_sort_direction(),
-            query.skip.clone().unwrap_or(0),
+            query.skip.unwrap_or(0),
             query.limit.unwrap_or(1)
         )
     }

@@ -1,23 +1,22 @@
-mod resources;
-mod shared;
+use actix_cors::Cors;
+use actix_web::{App, HttpServer};
+use actix_web::web::Data;
+use anyhow::Result;
 
 use crate::resources::block::controller::BlockController;
 use crate::resources::contract::controller::ContractController;
+use crate::resources::contract_meta::controller::ContractMetaController;
 use crate::resources::event::controller::EventController;
 use crate::resources::project::controller::ProjectsController;
 use crate::resources::transaction::controller::TransactionController;
 use crate::resources::user::controller::UserController;
-
 use crate::shared::app_config::app_config::AppConfig;
 use crate::shared::ctx::app_ctx::AppCtx;
 use crate::shared::logger::logger::{Init, Logger};
 use crate::shared::traits::resource_service::ResourceService;
 
-use actix_cors::Cors;
-use actix_web::web::Data;
-use actix_web::{App, HttpServer};
-
-use anyhow::Result;
+mod resources;
+mod shared;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -42,6 +41,7 @@ async fn main() -> Result<()> {
             .configure(BlockController::configure)
             .configure(ProjectsController::configure)
             .configure(EventController::configure)
+            .configure(ContractMetaController::configure)
             .wrap(cors)
     })
     .bind(("127.0.0.1", port))?

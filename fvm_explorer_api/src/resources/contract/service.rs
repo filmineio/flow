@@ -1,8 +1,10 @@
-use super::types::{Contract, ContractBytecode, ContractBytecodePath};
+use actix_web::{HttpResponse, Responder, web};
+
+use crate::AppCtx;
 use crate::shared::api_helpers::api_query::ApiQuery;
 use crate::shared::utils::query_utils::QueryUtils;
-use crate::AppCtx;
-use actix_web::{web, HttpResponse, Responder};
+
+use super::types::{Contract, ContractBytecode, ContractBytecodePath};
 
 pub async fn list(query: web::Query<ApiQuery>, ctx: web::Data<AppCtx>) -> impl Responder {
     if let Some(res) = ctx

@@ -1,7 +1,8 @@
-use crate::shared::traits::api_resource::ApiResource;
-use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use clickhouse_rs::types::{Complex, Row};
 use serde::{Deserialize, Serialize};
+
+use crate::shared::traits::api_resource::ApiResource;
+use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -55,15 +56,15 @@ impl FromRow<Contract> for Contract {
 
 impl ApiResource for ContractBytecode {
     fn get_table() -> String {
-        return "flow.contracts".to_string();
+        "flow.contracts".to_string()
     }
 
     fn default_order_by() -> String {
-        return "ContractId".to_string();
+        "ContractId".to_string()
     }
 
     fn default_search_by() -> String {
-        return "ContractAddress".to_string();
+        "ContractAddress".to_string()
     }
 
     fn match_order_by(_order_by: String) -> String {
@@ -74,7 +75,7 @@ impl ApiResource for ContractBytecode {
         vec![
             "ContractId".to_string(),
             "ContractAddress".to_string(),
-            "EthAddress".to_string().to_string(),
+            "EthAddress".to_string(),
             "ContractActorAddress".to_string(),
         ]
     }
@@ -82,15 +83,15 @@ impl ApiResource for ContractBytecode {
 
 impl ApiResource for Contract {
     fn get_table() -> String {
-        return "flow.contracts".to_string();
+        "flow.contracts".to_string()
     }
 
     fn default_order_by() -> String {
-        return "ContractId".to_string();
+        "ContractId".to_string()
     }
 
     fn default_search_by() -> String {
-        return "".to_string();
+        "".to_string()
     }
 
     fn match_order_by(order_by: String) -> String {
@@ -107,7 +108,7 @@ impl ApiResource for Contract {
             _ => vec![
                 "ContractId".to_string(),
                 "ContractAddress".to_string(),
-                "EthAddress".to_string().to_string(),
+                "EthAddress".to_string(),
                 "ContractActorAddress".to_string(),
             ],
         }

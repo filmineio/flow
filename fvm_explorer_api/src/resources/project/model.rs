@@ -1,11 +1,12 @@
-use crate::resources::project::types::CreateProjectBody;
-use crate::shared::api_helpers::api_query::ApiQuery;
-use crate::shared::traits::api_resource::ApiResource;
-use crate::shared::utils::query_utils::QueryUtils;
 use anyhow::Result;
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use tokio_postgres::Row;
+
+use crate::resources::project::types::CreateProjectBody;
+use crate::shared::api_helpers::api_query::ApiQuery;
+use crate::shared::traits::api_resource::ApiResource;
+use crate::shared::utils::query_utils::QueryUtils;
 
 #[derive(Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -16,18 +17,14 @@ pub struct Project {
     pub contracts: Vec<String>,
 }
 
-impl TryFrom<&Row> for Project {
-    type Error = anyhow::Error;
-
-    fn try_from(value: &Row) -> Result<Self> {
-        let r = Self {
+impl From<Row> for Project {
+    fn from(value: Row) -> Self {
+        Self {
             id: value.get("id"),
             owner_email: value.get("owner_email"),
             name: value.get("name"),
             contracts: value.get("contracts"),
-        };
-
-        Ok(r)
+        }
     }
 }
 impl ApiResource for Project {

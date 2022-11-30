@@ -1,5 +1,6 @@
-use crate::AppCtx;
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
+
+use crate::AppCtx;
 
 pub async fn create(req_body: String) -> impl Responder {
     HttpResponse::Ok().body(req_body)

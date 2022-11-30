@@ -1,5 +1,6 @@
-use crate::shared::listener::contract_type::ContractType;
 use serde::{Deserialize, Serialize};
+
+use crate::shared::listener::contract_type::ContractType;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]

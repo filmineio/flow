@@ -3,3 +3,4 @@ mod ch_config;
 mod kafka_config;
 mod pg_config;
 mod server_config;
+mod web3_storage_config;

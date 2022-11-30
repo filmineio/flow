@@ -1,9 +1,10 @@
-use crate::shared::ctx::ch::CH;
-use crate::AppConfig;
 use deadpool_postgres::Pool;
 use lotus_rs::client::LotusClient;
 use lotus_rs::config::LotusConfig;
 use tokio_postgres::NoTls;
+
+use crate::AppConfig;
+use crate::shared::ctx::ch::CH;
 
 #[derive(Clone)]
 pub struct AppCtx {

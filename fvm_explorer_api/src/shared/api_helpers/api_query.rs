@@ -1,5 +1,6 @@
-use crate::shared::traits::api_resource::ApiResource;
 use serde::{Deserialize, Serialize};
+
+use crate::shared::traits::api_resource::ApiResource;
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub enum SortDirection {
@@ -36,9 +37,6 @@ impl ApiQuery {
     }
 
     pub fn get_search_term(&self) -> Option<String> {
-        match &self.search {
-            None => None,
-            Some(val) => Some(sql_lexer::sanitize_string(val.to_string())),
-        }
+        self.search.as_ref().map(|val| sql_lexer::sanitize_string(val.to_string()))
     }
 }

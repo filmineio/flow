@@ -1,8 +1,9 @@
-use crate::shared::traits::api_resource::ApiResource;
-use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use clickhouse_rs::types::{Complex, Row};
 use lotus_rs::types::state::event::Entry;
 use serde::{Deserialize, Serialize};
+
+use crate::shared::traits::api_resource::ApiResource;
+use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -38,15 +39,15 @@ impl FromRow<Event> for Event {
 
 impl ApiResource for Event {
     fn get_table() -> String {
-        return "flow.events".to_string();
+        "flow.events".to_string()
     }
 
     fn default_order_by() -> String {
-        return "Order".to_string();
+        "Order".to_string()
     }
 
     fn default_search_by() -> String {
-        return "MessageCid".to_string();
+        "MessageCid".to_string()
     }
 
     fn match_order_by(order_by: String) -> String {

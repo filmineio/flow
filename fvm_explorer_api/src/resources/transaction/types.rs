@@ -1,7 +1,8 @@
-use crate::shared::traits::api_resource::ApiResource;
-use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 use clickhouse_rs::types::{Complex, Row};
 use serde::{Deserialize, Serialize};
+
+use crate::shared::traits::api_resource::ApiResource;
+use crate::shared::traits::clickhouse::from_ch_result::FromRow;
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -63,7 +64,7 @@ impl Transaction {
 
         tx.state_transition = Some(next_state.clone());
 
-        return (tx, next_state.next_bls);
+        (tx, next_state.next_bls)
     }
 }
 
@@ -99,15 +100,15 @@ impl FromRow<Transaction> for Transaction {
 
 impl ApiResource for Transaction {
     fn get_table() -> String {
-        return "flow.messages".to_string();
+        "flow.messages".to_string()
     }
 
     fn default_order_by() -> String {
-        return "BlockTimestamp".to_string();
+        "BlockTimestamp".to_string()
     }
 
     fn default_search_by() -> String {
-        return "".to_string();
+        "".to_string()
     }
 
     fn match_order_by(order_by: String) -> String {
