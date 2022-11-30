@@ -72,7 +72,7 @@ pub async fn create(
         .expect("Should have been able to read the file");
 
     let bytecode = bytecode.unwrap();
-    if contents.len() != bytecode.len() {
+    if contents.len().abs_diff(bytecode.len()) < 2 {
         println!("BYTECODES DO NOT MATCH {}, {}", contents, bytecode);
         return HttpResponse::Ok().json(default);
     }
