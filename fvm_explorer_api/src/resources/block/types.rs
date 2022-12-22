@@ -27,23 +27,11 @@ impl ApiResource for Block {
         "flow.block".to_string()
     }
 
-    fn default_order_by() -> String {
-        "Timestamp".to_string()
+    fn match_order_by(order_by: Option<String>) -> String {
+        return "Cid".to_string();
     }
 
-    fn default_search_by() -> String {
-        "".to_string()
-    }
-
-    fn match_order_by(order_by: String) -> String {
-        match order_by.to_lowercase().as_str() {
-            _ => "Cid".to_string(),
-        }
-    }
-
-    fn match_search_by(search: String) -> Vec<String> {
-        match search.to_lowercase().as_str() {
-            _ => vec!["Cid".to_string()],
-        }
+    fn match_search_by(search: Option<String>) -> Vec<String> {
+        vec!["Cid".to_string()]
     }
 }

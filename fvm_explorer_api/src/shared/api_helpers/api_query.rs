@@ -29,14 +29,16 @@ impl ApiQuery {
     }
 
     pub fn get_order_by<T: ApiResource>(&self) -> String {
-        T::match_order_by(self.order_by.clone().unwrap_or(T::default_order_by()))
+        T::match_order_by(self.order_by.clone())
     }
 
     pub fn get_search_by<T: ApiResource>(&self) -> Vec<String> {
-        T::match_search_by(self.search_by.clone().unwrap_or(T::default_search_by()))
+        T::match_search_by(self.search_by.clone())
     }
 
     pub fn get_search_term(&self) -> Option<String> {
-        self.search.as_ref().map(|val| sql_lexer::sanitize_string(val.to_string()))
+        self.search
+            .as_ref()
+            .map(|val| sql_lexer::sanitize_string(val.to_string()))
     }
 }

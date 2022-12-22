@@ -42,23 +42,19 @@ impl ApiResource for Event {
         "flow.events".to_string()
     }
 
-    fn default_order_by() -> String {
+    fn match_order_by(order_by: Option<String>) -> String {
         "Order".to_string()
     }
 
-    fn default_search_by() -> String {
-        "MessageCid".to_string()
+    fn match_search_by(search: Option<String>) -> Vec<String> {
+        vec!["MessageCid".to_string(), "EventsRoot".to_string()]
     }
+}
 
-    fn match_order_by(order_by: String) -> String {
-        match order_by.to_lowercase().as_str() {
-            _ => "Order".to_string(),
-        }
-    }
-
-    fn match_search_by(search: String) -> Vec<String> {
-        match search.to_lowercase().as_str() {
-            _ => vec!["MessageCid".to_string(), "EventsRoot".to_string()],
-        }
-    }
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EthEvent {
+    pub topics: Vec<web3::types::Bytes>,
+    pub data: web3::types::Bytes,
+    pub order: i64,
 }

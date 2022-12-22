@@ -65,16 +65,16 @@ async fn consume_messages(ctx: &AppCtx, config: &AppConfig) -> Result<()> {
                         ContractType::EFVM => {
                             new_contract
                                 .resolve_e_fvm_data(v, &ctx.lotus_client)
-                                .await?;
+                                .await
+                                .unwrap_or(());
                         }
-                        ContractType::WASM => {
-                            new_contract
-                                .resolve_fvm_data(
-                                    transaction.sub_call_of.unwrap_or("".to_string()),
-                                    &ctx.lotus_client,
-                                )
-                                .await?
-                        }
+                        ContractType::WASM => new_contract
+                            .resolve_fvm_data(
+                                transaction.sub_call_of.unwrap_or("".to_string()),
+                                &ctx.lotus_client,
+                            )
+                            .await
+                            .unwrap_or(()),
                     }
 
                     match ctx

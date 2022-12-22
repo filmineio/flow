@@ -1,2 +1,46 @@
-avoid-breaking-exported-api = false
-cognitive-complexity-threshold = 10
+
+[clippy]
+
+# Enforce cognitive complexity restrictions
+cognitive_complexity = "error"
+cognitive_complexity_threshold = 20
+
+# Enforce cyclomatic complexity restrictions
+cyclomatic_complexity = "error"
+cyclomatic_complexity_threshold = 20
+
+# Enforce nesting depth restrictions
+max_nesting_depth = "error"
+max_nesting_depth_threshold = 5
+[warnings]
+
+# All warnings are enabled by default
+# Uncomment a line to disable a warning
+
+# This warning is an example
+# deny = "unused_variables"
+
+# Warnings for variable and function naming
+deny = "non_ascii_idents"
+deny = "uppercase_idents"
+deny = "non_snake_case"
+
+# Warnings for variable and function definitions
+deny = "unused_mut"
+deny = "unused_parens"
+deny = "unused_assignments"
+deny = "unused_variables"
+deny = "unused_imports"
+deny = "unused_must_use"
+
+# Warnings for loops
+deny = "unused_loop_variables"
+deny = "unused_label"
+
+# Warnings for general style
+deny = "clippy::style"
+deny = "clippy::complexity"
+deny = "clippy::pedantic"
+deny = "clippy::cognitive_complexity"
+deny = "
+

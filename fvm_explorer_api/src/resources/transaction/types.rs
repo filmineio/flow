@@ -103,32 +103,32 @@ impl ApiResource for Transaction {
         "flow.messages".to_string()
     }
 
-    fn default_order_by() -> String {
-        "BlockTimestamp".to_string()
-    }
-
-    fn default_search_by() -> String {
-        "".to_string()
-    }
-
-    fn match_order_by(order_by: String) -> String {
-        match order_by.to_lowercase().as_str() {
-            "height" => "Height".to_string(),
-            _ => "Timestamp".to_string(),
+    fn match_order_by(order_by: Option<String>) -> String {
+        match order_by {
+            None => "Timestamp".to_string(),
+            Some(order_by) => match order_by.to_lowercase().as_str() {
+                "height" => "Height".to_string(),
+                _ => "Timestamp".to_string(),
+            },
         }
     }
 
-    fn match_search_by(search: String) -> Vec<String> {
-        match search.to_lowercase().as_str() {
-            "contract" => vec![
-                "From".to_string(),
-                "To".to_string(),
-                "RobustFrom".to_string(),
-                "RobustTo".to_string(),
-            ],
-            "subcalls" => vec!["SubCallOf".to_string()],
-            "block" => vec!["Block".to_string()],
-            _ => vec!["Cid".to_string()],
+    fn match_search_by(search: Option<String>) -> Vec<String> {
+        match search {
+            None => {
+                vec!["Cid".to_string()]
+            }
+            Some(search) => match search.to_lowercase().as_str() {
+                "contract" => vec![
+                    "From".to_string(),
+                    "To".to_string(),
+                    "RobustFrom".to_string(),
+                    "RobustTo".to_string(),
+                ],
+                "subcalls" => vec!["SubCallOf".to_string()],
+                "block" => vec!["Block".to_string()],
+                _ => vec!["Cid".to_string()],
+            },
         }
     }
 }

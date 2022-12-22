@@ -49,3 +49,4 @@ sanitize-filename = "0.4"
 uuid = { version = "1", features = ["v4"] }
 ethabi="18.0.0"
 fvm_shared = "3.0.0-alpha.12"
+web3 = "0.18.0"

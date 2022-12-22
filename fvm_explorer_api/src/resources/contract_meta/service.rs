@@ -117,11 +117,6 @@ pub async fn create(
     cc.compiler_version = "solidity >=0.4.22 <= 0.8.18".to_string();
     cc.name = filename.replace(".sol", "");
 
-    // HttpResponse::Ok().json(to_res::<ContractMeta>(
-    //     ContractMeta::create(&ctx.pg_pool, data.into_inner()).await,
-    //     true,
-    // ))
-
     default.total = 1;
     default.rows = vec![cc];
     HttpResponse::Ok().json(default)

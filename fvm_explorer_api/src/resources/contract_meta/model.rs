@@ -45,22 +45,12 @@ impl ApiResource for ContractMeta {
         "contract_meta".to_string()
     }
 
-    fn default_order_by() -> String {
+    fn match_order_by(_order_by: Option<String>) -> String {
         "id".to_string()
     }
 
-    fn default_search_by() -> String {
-        "contract_address".to_string()
-    }
-
-    fn match_order_by(_order_by: String) -> String {
-        "id".to_string()
-    }
-
-    fn match_search_by(search: String) -> Vec<String> {
-        match search.as_str() {
-            _ => vec!["contract_address".to_string()],
-        }
+    fn match_search_by(search: Option<String>) -> Vec<String> {
+        vec!["contract_address".to_string()]
     }
 }
 

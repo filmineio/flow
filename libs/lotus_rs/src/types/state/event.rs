@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 bitflags! {
     /// Flags associated with an Event entry.
-    #[derive(Deserialize, Serialize)]
+    #[derive(Deserialize, Serialize, Default)]
     #[serde(transparent)]
     pub struct Flags: u8 {
         const FLAG_INDEXED_KEY      = 0b00000001;
@@ -23,7 +23,7 @@ pub struct StampedEvent {
     pub entries: Vec<Entry>,
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct Entry {
     /// A bitmap conveying metadata or hints about this entry.

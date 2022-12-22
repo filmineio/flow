@@ -32,23 +32,20 @@ impl ApiResource for Project {
         "projects".to_string()
     }
 
-    fn default_order_by() -> String {
+    fn match_order_by(_order_by: Option<String>) -> String {
         "id".to_string()
     }
 
-    fn default_search_by() -> String {
-        "id".to_string()
-    }
-
-    fn match_order_by(_order_by: String) -> String {
-        "id".to_string()
-    }
-
-    fn match_search_by(search: String) -> Vec<String> {
-        match search.as_str() {
-            "name" => vec!["name".to_string()],
-            "owner" => vec!["owner_email".to_string()],
-            _ => vec!["id".to_string()],
+    fn match_search_by(search: Option<String>) -> Vec<String> {
+        match search {
+            None => {
+                vec!["id".to_string()]
+            }
+            Some(search) => match search.as_str() {
+                "name" => vec!["name".to_string()],
+                "owner" => vec!["owner_email".to_string()],
+                _ => vec!["id".to_string()],
+            },
         }
     }
 }

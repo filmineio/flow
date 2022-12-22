@@ -59,19 +59,11 @@ impl ApiResource for ContractBytecode {
         "flow.contracts".to_string()
     }
 
-    fn default_order_by() -> String {
+    fn match_order_by(_order_by: Option<String>) -> String {
         "ContractId".to_string()
     }
 
-    fn default_search_by() -> String {
-        "ContractAddress".to_string()
-    }
-
-    fn match_order_by(_order_by: String) -> String {
-        "ContractId".to_string()
-    }
-
-    fn match_search_by(_search: String) -> Vec<String> {
+    fn match_search_by(_search: Option<String>) -> Vec<String> {
         vec![
             "ContractId".to_string(),
             "ContractAddress".to_string(),
@@ -85,32 +77,36 @@ impl ApiResource for Contract {
     fn get_table() -> String {
         "flow.contracts".to_string()
     }
-
-    fn default_order_by() -> String {
-        "ContractId".to_string()
-    }
-
-    fn default_search_by() -> String {
-        "".to_string()
-    }
-
-    fn match_order_by(order_by: String) -> String {
-        match order_by.to_lowercase().as_str() {
-            "balance" => "Balance".to_string(),
-            "transactioncount" => "TransactionCount".to_string(),
-            _ => "ContractId".to_string(),
+    fn match_order_by(order_by: Option<String>) -> String {
+        match order_by {
+            None => "ContractId".to_string(),
+            Some(order_by) => match order_by.to_lowercase().as_str() {
+                "balance" => "Balance".to_string(),
+                "transactioncount" => "TransactionCount".to_string(),
+                _ => "ContractId".to_string(),
+            },
         }
     }
 
-    fn match_search_by(search: String) -> Vec<String> {
-        match search.to_lowercase().as_str() {
-            "owner" => vec!["OwnerId".to_string(), "OwnerAddress".to_string()],
-            _ => vec![
-                "ContractId".to_string(),
-                "ContractAddress".to_string(),
-                "EthAddress".to_string(),
-                "ContractActorAddress".to_string(),
-            ],
+    fn match_search_by(search: Option<String>) -> Vec<String> {
+        match search {
+            None => {
+                vec![
+                    "ContractId".to_string(),
+                    "ContractAddress".to_string(),
+                    "EthAddress".to_string(),
+                    "ContractActorAddress".to_string(),
+                ]
+            }
+            Some(search) => match search.to_lowercase().as_str() {
+                "owner" => vec!["OwnerId".to_string(), "OwnerAddress".to_string()],
+                _ => vec![
+                    "ContractId".to_string(),
+                    "ContractAddress".to_string(),
+                    "EthAddress".to_string(),
+                    "ContractActorAddress".to_string(),
+                ],
+            },
         }
     }
 }

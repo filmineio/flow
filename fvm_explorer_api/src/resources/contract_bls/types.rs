@@ -28,19 +28,11 @@ impl ApiResource for ContractBls {
         "flow.contracts".to_string()
     }
 
-    fn default_order_by() -> String {
+    fn match_order_by(_order_by: Option<String>) -> String {
         "ContractAddress".to_string()
     }
 
-    fn default_search_by() -> String {
-        "ContractAddress".to_string()
-    }
-
-    fn match_order_by(_order_by: String) -> String {
-        "ContractAddress".to_string()
-    }
-
-    fn match_search_by(_search: String) -> Vec<String> {
+    fn match_search_by(_search: Option<String>) -> Vec<String> {
         vec!["ContractAddress".to_string()]
     }
 }

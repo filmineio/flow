@@ -1,6 +1,6 @@
 use actix_cors::Cors;
-use actix_web::{App, HttpServer};
 use actix_web::web::Data;
+use actix_web::{App, HttpServer};
 use anyhow::Result;
 
 use crate::resources::block::controller::BlockController;
