@@ -56,9 +56,9 @@ pub struct Block {
     pub ParentStateRoot: CID,
     pub ParentMessageReceipts: CID,
     pub Messages: CID,
-    pub BLSAggregate: BLSAggregate,
+    pub BLSAggregate: Option<BLSAggregate>,
     pub Timestamp: i64,
-    pub BlockSig: BlockSig,
+    pub BlockSig: Option<BlockSig>,
     pub ForkSignaling: i64,
     pub ParentBaseFee: String,
 }
