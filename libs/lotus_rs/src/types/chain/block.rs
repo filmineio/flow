@@ -11,7 +11,7 @@ pub struct BlockTicket {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ElectionProof {
     pub WinCount: i32,
-    pub VRFProof: String,
+    pub VRFProof: Option<String>,
 }
 
 #[allow(non_snake_case)]
