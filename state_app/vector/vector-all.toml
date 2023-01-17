@@ -158,7 +158,7 @@ source = '''
 [transforms.kafka_evm_contract_filter]
 type = "filter"
 inputs = ["to_table"]
-condition = '''(.To == "t010" && .SubCallOf == null && includes([2,3], .Method))'''
+condition = '''(.To == "t010" && .SubCallOf == null && includes([2,3,4], .Method))'''
 
 [transforms.dedupe_kafka_evm_contract_filter]
 type = "dedupe"
