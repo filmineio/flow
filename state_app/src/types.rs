@@ -2,7 +2,7 @@ use lotus_rs::client::LotusClient;
 use lotus_rs::types::chain::block::Block;
 use lotus_rs::types::chain::cid::{cid2str, CID};
 use lotus_rs::types::chain::message::Message;
-use lotus_rs::types::state::event::{Entry};
+use lotus_rs::types::state::event::Entry;
 use lotus_rs::types::state::execution_trace::ExecutionTrace;
 use lotus_rs::types::state::gas_charge::GasCharge;
 use lotus_rs::types::state::message_rct::MessageRct;
