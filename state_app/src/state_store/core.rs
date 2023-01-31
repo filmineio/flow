@@ -18,11 +18,18 @@ impl StateStore {
     }
 
     pub async fn get_sync_state(&self) -> Option<SyncState> {
-        match self.db.get(&"sync_state") {
+        let sync_state = match self.db.get(&"sync_state") {
             Ok(vec) => match vec {
-                Some(v) => Some(bincode::deserialize(&v).unwrap()),
-                _ => None,
+                Some(vec) => vec,
+                _ => return None,
             },
+            _ => return None,
+        };
+
+        // If we fail to deserialize there is possibly some corrupted data
+        // in that case we return None so we can override it
+        match bincode::deserialize(&sync_state) {
+            Ok(sync_state) => Some(sync_state),
             _ => None,
         }
     }
