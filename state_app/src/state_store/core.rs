@@ -28,8 +28,13 @@ impl StateStore {
     }
 
     pub async fn update_sync_state(&self, sync_state: SyncState) -> anyhow::Result<()> {
-        match bincode::serialize(&sync_state) {
-            Ok(sync_state) => match self.db.insert(&"sync_state", sync_state) {
+        let sync_state = match bincode::serialize(&sync_state) {
+            Ok(s) => s,
+            Err(e) => return Err(anyhow!(e)),
+        };
+
+        match self.db.insert(&"sync_state", sync_state) {
+            Ok(_) => match self.db.flush_async().await {
                 Ok(_) => Ok(()),
                 Err(e) => Err(anyhow!(e)),
             },
