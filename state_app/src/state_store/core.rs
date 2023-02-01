@@ -1,7 +1,7 @@
 use sled;
 
 use crate::state_store::config::StateStoreConfig;
-use crate::state_store::lib::{StateStoreError, SyncState};
+use crate::state_store::types::{StateStoreError, SyncState};
 
 #[derive(Debug)]
 pub struct StateStore {

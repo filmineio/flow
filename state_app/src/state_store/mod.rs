@@ -1,4 +1,4 @@
 pub mod config;
 pub mod core;
-pub mod lib;
+pub mod types;
 
