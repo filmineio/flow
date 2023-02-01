@@ -9,8 +9,7 @@ use lotus_rs::config::LotusConfig;
 use serde_json::json;
 use tokio::time::{sleep, Instant};
 
-use crate::state_store::config::StateStoreConfig;
-use crate::state_store::core::StateStore;
+use crate::state_store::{config::StateStoreConfig, core::StateStore};
 use crate::sync::sync;
 use crate::types::{Bench, FlowMessage};
 
