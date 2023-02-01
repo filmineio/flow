@@ -1,8 +1,7 @@
-use anyhow::anyhow;
 use sled;
 
 use crate::state_store::config::StateStoreConfig;
-use crate::state_store::lib::SyncState;
+use crate::state_store::lib::{StateStoreError, SyncState};
 
 #[derive(Debug)]
 pub struct StateStore {
@@ -10,11 +9,10 @@ pub struct StateStore {
 }
 
 impl StateStore {
-    pub fn new(config: StateStoreConfig) -> anyhow::Result<StateStore> {
-        match sled::open(config.path.as_str()) {
-            Ok(db) => Ok(StateStore { db }),
-            Err(e) => Err(anyhow!(e)),
-        }
+    pub fn new(config: StateStoreConfig) -> Result<StateStore, StateStoreError> {
+        let db = sled::open(config.path.as_str())?;
+
+        Ok(Self { db })
     }
 
     pub async fn get_sync_state(&self) -> Option<SyncState> {
@@ -34,19 +32,13 @@ impl StateStore {
         }
     }
 
-    pub async fn update_sync_state(&self, sync_state: SyncState) -> anyhow::Result<()> {
-        let sync_state = match bincode::serialize(&sync_state) {
-            Ok(s) => s,
-            Err(e) => return Err(anyhow!(e)),
-        };
+    pub async fn update_sync_state(&self, sync_state: SyncState) -> Result<(), StateStoreError> {
+        let sync_state = bincode::serialize(&sync_state)?;
 
-        match self.db.insert(&"sync_state", sync_state) {
-            Ok(_) => match self.db.flush_async().await {
-                Ok(_) => Ok(()),
-                Err(e) => Err(anyhow!(e)),
-            },
-            Err(e) => Err(anyhow!(e)),
-        }
+        self.db.insert(&"sync_state", sync_state)?;
+        self.db.flush_async().await?;
+
+        Ok(())
     }
 
     pub async fn get_current_height(&self) -> i64 {
@@ -56,7 +48,7 @@ impl StateStore {
         }
     }
 
-    pub async fn update_current_height(&self, height: i64) -> anyhow::Result<()> {
+    pub async fn update_current_height(&self, height: i64) -> Result<(), StateStoreError> {
         let mut sync_state = match self.get_sync_state().await {
             Some(s) => s,
             _ => SyncState {
