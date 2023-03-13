@@ -7,27 +7,27 @@ use anyhow::Result;
 use lotus_rs::client::LotusClient;
 use lotus_rs::config::LotusConfig;
 use serde_json::json;
-use tokio::time::{Instant, sleep};
+use tokio::time::{sleep, Instant};
 
+use crate::state_store::{config::StateStoreConfig, core::StateStore};
 use crate::sync::sync;
-use crate::sync_store::config::SyncStoreConfig;
-use crate::sync_store::core::SyncStore;
 use crate::types::{Bench, FlowMessage};
 
+mod state_store;
 mod sync;
 mod types;
-mod sync_store;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let client = LotusClient::init(LotusConfig::from_env());
-    let sync_store_cfg = SyncStoreConfig::from_env();
-    let sync_store = SyncStore::new(sync_store_cfg)?;
+    let state_store_cfg = StateStoreConfig::from_env();
+    let state_store = StateStore::new(state_store_cfg)?;
 
     let mut map: HashMap<String, Option<String>> = HashMap::new();
     loop {
         let height = client.chain_head().await?.Height;
-        let mut current_height = sync_store.get_current_height();
+        let mut current_height = state_store.get_current_height().await;
+
         while current_height < height {
             let now = Instant::now();
             if let Ok(d) = sync(&client, current_height, &mut map).await {
@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
                 current_height += 1;
             }
 
-            sync_store.update_current_height(current_height);
+            state_store.update_current_height(current_height).await;
             sleep(Duration::new(0, 0)).await;
         }
         sleep(Duration::new(35, 0)).await;
