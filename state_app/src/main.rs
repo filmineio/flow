@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use anyhow::Result;
+use config::StateAppConfig;
 use lotus_rs::client::LotusClient;
 use lotus_rs::config::LotusConfig;
 use serde_json::json;
@@ -13,15 +14,20 @@ use crate::state_store::{config::StateStoreConfig, core::StateStore};
 use crate::sync::sync;
 use crate::types::{Bench, FlowMessage};
 
+mod config;
 mod state_store;
 mod sync;
 mod types;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let config = StateAppConfig::from_env();
     let client = LotusClient::init(LotusConfig::from_env());
     let state_store_cfg = StateStoreConfig::from_env();
     let state_store = StateStore::new(state_store_cfg)?;
+    state_store
+        .update_initial_height(config.initial_height)
+        .await?;
 
     let mut map: HashMap<String, Option<String>> = HashMap::new();
     loop {
@@ -44,7 +50,7 @@ async fn main() -> Result<()> {
                 current_height += 1;
             }
 
-            state_store.update_current_height(current_height).await;
+            state_store.update_current_height(current_height).await?;
             sleep(Duration::new(0, 0)).await;
         }
         sleep(Duration::new(35, 0)).await;

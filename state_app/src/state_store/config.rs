@@ -14,8 +14,4 @@ impl StateStoreConfig {
             path: std::env::var("STORE_PATH").expect("STORE_PATH is required"),
         }
     }
-
-    pub fn new(path: String) -> StateStoreConfig {
-        StateStoreConfig { path }
-    }
 }
