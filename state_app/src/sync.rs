@@ -73,8 +73,8 @@ pub async fn get_block_state(
         msgs.push(f_msg);
         t.ExecutionTrace.Subcalls.iter().for_each(|msg| {
             msg.iter().for_each(|v| {
-                let cid: String = v.Msg.CID["/"].clone();
-                if let std::collections::hash_map::Entry::Vacant(e) = msg_map.entry(cid) {
+                let cid: String = t.MsgCid.clone()["/"].clone();
+                if let std::collections::hash_map::Entry::Vacant(e) = msg_map.entry(cid.clone()) {
                     e.insert(true);
                     let mut f_msg = FlowMessage::from((v.clone(), cid.clone()));
                     f_msg.set_block(height, block_cid.clone());
