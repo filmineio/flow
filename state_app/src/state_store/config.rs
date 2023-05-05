@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct StateStoreConfig {
     pub path: String,
+    pub reset: bool
 }
 
 impl StateStoreConfig {
@@ -12,6 +13,7 @@ impl StateStoreConfig {
         dotenv().unwrap();
         StateStoreConfig {
             path: std::env::var("STORE_PATH").expect("STORE_PATH is required"),
+            reset: std::env::var("RESET_HEIGHT").unwrap_or("no".to_string()) == "yes".to_string(),
         }
     }
 }

@@ -3,7 +3,7 @@ use lotus_rs::types::chain::block::Block;
 use lotus_rs::types::chain::cid::{cid2str, CID};
 use lotus_rs::types::chain::message::Message;
 use lotus_rs::types::state::event::Entry;
-use lotus_rs::types::state::execution_trace::ExecutionTrace;
+use lotus_rs::types::state::execution_trace::{ExecutionTrace, ExecutionTraceMessage};
 use lotus_rs::types::state::gas_charge::GasCharge;
 use lotus_rs::types::state::message_rct::MessageRct;
 use serde::{Deserialize, Serialize};
@@ -69,7 +69,7 @@ pub struct Addresses {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FlowMessage {
     pub Cid: String,
-    pub Message: Message,
+    pub Message: ExecutionTraceMessage,
     pub Height: Option<i64>,
     pub BlockCid: Option<String>,
     pub MessageRct: Option<FlowMessageRct>,
@@ -81,8 +81,8 @@ pub struct FlowMessage {
     pub NumberOfEvents: i64,
 }
 
-impl From<Message> for Addresses {
-    fn from(value: Message) -> Self {
+impl From<ExecutionTraceMessage> for Addresses {
+    fn from(value: ExecutionTraceMessage) -> Self {
         let mut addr: Addresses = Addresses {
             From: None,
             RobustFrom: None,
@@ -148,15 +148,15 @@ impl Addresses {
     }
 }
 
-impl From<ExecutionTrace> for FlowMessage {
-    fn from(exec_trace: ExecutionTrace) -> Self {
+impl From<(ExecutionTrace, String)> for FlowMessage {
+    fn from((exec_trace, cid): (ExecutionTrace, String)) -> Self {
         let mut val: i64 = 0;
         if let Some(v) = &exec_trace.Msg.Value {
             val = i64::from_str(v).unwrap_or(0)
         }
 
         Self {
-            Cid: exec_trace.Msg.CID["/"].clone(),
+            Cid: cid,
             Message: exec_trace.Msg.clone(),
             Height: None,
             BlockCid: None,
@@ -191,6 +191,7 @@ pub struct Bench {
     pub elapsed: Duration,
     pub height: i64,
     pub target_height: i64,
+    pub error: Option<String>
 }
 
 impl FlowMessage {

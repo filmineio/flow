@@ -61,14 +61,15 @@ impl StateStore {
         };
 
         sync_state.height = height;
+
         self.update_sync_state(sync_state).await
     }
 
     // updates initial height if current height is zero and initial height is higher then 0
-    pub async fn update_initial_height(&self, initial_height: i64) -> Result<(), StateStoreError> {
+    pub async fn update_initial_height(&self, initial_height: i64, reset: bool) -> Result<(), StateStoreError> {
         let current_height = self.get_current_height().await;
 
-        if current_height == 0 && initial_height > 0 {
+        if (current_height == 0 || reset) && initial_height > 0 {
             return self.update_current_height(initial_height).await;
         }
 

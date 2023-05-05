@@ -68,7 +68,7 @@ pub async fn get_block_state(
     let mut msgs: Vec<FlowMessage> = vec![];
 
     state.Trace.iter().for_each(|t| {
-        let mut f_msg = FlowMessage::from(t.ExecutionTrace.clone());
+        let mut f_msg = FlowMessage::from((t.ExecutionTrace.clone(), t.MsgCid.clone()["/"].clone()));
         f_msg.set_block(height, block_cid.clone());
         msgs.push(f_msg);
         t.ExecutionTrace.Subcalls.iter().for_each(|msg| {
@@ -76,7 +76,7 @@ pub async fn get_block_state(
                 let cid: String = v.Msg.CID["/"].clone();
                 if let std::collections::hash_map::Entry::Vacant(e) = msg_map.entry(cid) {
                     e.insert(true);
-                    let mut f_msg = FlowMessage::from(v.clone());
+                    let mut f_msg = FlowMessage::from((v.clone(), cid.clone()));
                     f_msg.set_block(height, block_cid.clone());
                     f_msg.set_sub_calls_of(t.Msg.CID.clone());
                     msgs.push(f_msg);
